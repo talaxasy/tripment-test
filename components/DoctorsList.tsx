@@ -15,6 +15,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
         <p>The average price of a procedure in New York is $300</p>
         <pre style={{userSelect: 'none', position: 'fixed', top: 0, right: 0, fontSize: '12px'}}>
           {JSON.stringify(mock, null, 2)}
+          {/* {} */}
         </pre>
       </div>
     </>

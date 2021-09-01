@@ -1,20 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@200;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;400;500&family=Montserrat:wght@200;800&display=swap');
-
-
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@200;800&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 a {
     color: #fff;
     text-decoration: none;
-
 }
 
 a:hover {
     text-decoration: none;
     color: #fff;
 }
-
-
 
 h1,
 h2,
@@ -26,12 +21,10 @@ p {
     margin: 0;
 }
 
-
 b,
 strong {
     font-weight: bold;
 }
-
 
 *,
 *:before,
@@ -39,7 +32,6 @@ strong {
     box-sizing: border-box;
     text-decoration: none;
 }
-
 
 button {
     border: none;
@@ -54,7 +46,7 @@ button {
     font-size: 32px;
     line-height: 40px;
     letter-spacing: -0.3px;
-    color: #244D51;
+    color: #244d51;
 }
 
 .main p {
@@ -73,22 +65,21 @@ button {
     margin: 30px auto;
     background: #fff;
     padding: 32px;
-    border: 1px solid #EAEEEE;
+    border: 1px solid #eaeeee;
     border-radius: 5px;
 }
 
-
 .doctor_item {
     width: 100%;
-    transition: ease-in .2s all;
+    transition: ease-in 0.2s all;
     cursor: default;
     padding: 25px;
     display: flex;
-    border-bottom: 1px solid #EAEEEE;
+    border-bottom: 1px solid #eaeeee;
 }
 
 .doctor_item:hover {
-    background: #F5F7F7;
+    background: #f5f7f7;
 }
 
 .doctor_item h3 {
@@ -102,7 +93,7 @@ button {
     align-items: center;
     letter-spacing: -0.3px;
 
-    color: #244D51;
+    color: #244d51;
 }
 
 .doctor__img {
@@ -135,33 +126,32 @@ button {
     display: flex;
     align-items: center;
     letter-spacing: -0.3px;
-    color: #244D51;
+    color: #244d51;
     border-bottom: 1px dotted #999;
     display: inline;
 }
 
-.doctor_price{
+.doctor_price {
     font-family: Inter;
-font-style: normal;
-font-weight: 600;
-font-size: 18px;
-line-height: 26px;
-display: flex;
-align-items: center;
-text-align: right;
-letter-spacing: -0.3px;
-color: #244D51;
-margin-top: 6px;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 26px;
+    display: flex;
+    align-items: center;
+    text-align: right;
+    letter-spacing: -0.3px;
+    color: #244d51;
+    margin-top: 6px;
 }
 
-.doctor_heart{
+.doctor_heart {
     transition: ease-in;
 }
 
-.doctor_heart:hover svg path{
+.doctor_heart:hover svg path {
     fill: rgba(218, 19, 19, 0.836);
 }
-
 
 .doctor__content {
     margin-left: 16px;
@@ -176,7 +166,6 @@ margin-top: 6px;
 }
 
 .doc_A h3 {
-
     font-family: Inter;
     font-style: normal;
     font-weight: 600;
@@ -187,8 +176,7 @@ margin-top: 6px;
     align-items: center;
     letter-spacing: -0.3px;
 
-    color: #244D51;
-
+    color: #244d51;
 }
 
 .dot {
@@ -205,5 +193,114 @@ margin-top: 6px;
     font-size: 16px;
     line-height: 24px;
     letter-spacing: -0.3px;
+    color: #244d51;
+}
+
+.select_btn > span {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 24px;
+    align-items: center;
+    text-align: center;
+    letter-spacing: -0.3px;
+}
+
+.select_btn {
+    display: flex;
+    position: relative;
+    align-items: center;
+    border-radius: 4px;
+    padding: 5px 12px;
+    border: 1px solid #becacb;
+    cursor: pointer;
+    width: max-content;
+    margin-right: 20px;
+    transition: cubic-bezier(0, 1.18, 0.78, 0.99) 0.45s;
+}
+
+.select_btn:hover {
+    border: 1px solid #327680;
+}
+
+.filters {
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+}
+
+.reset_link {
+    display: flex;
+    border-bottom: 1px dotted #ed6852;
+    color: #ed6852;
+    height: 100%;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 16px;
+    line-height: 24px;
+    letter-spacing: -0.3px;
+    cursor: pointer;
+    width: max-content;
+}
+
+.dropdown_content {
+    position: absolute;
+    background: #fff;
+    filter: drop-shadow(-4px 4px 8px rgba(0, 0, 0, 0.16));
+    border-radius: 8px;
+    top: 110%;
+    border: 1px solid #BECACB;
+    right: 0;
+    overflow: hidden;
+    min-width: 320px;
+
+    font-family: Inter;
+font-style: normal;
+font-weight: normal;
+font-size: 16px;
+line-height: 24px;
+letter-spacing: -0.3px;
+}
+
+.dropdown_content__header{
+    padding: 16px;
+}
+
+.dropdown_content__footer{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-top: 1px solid #EAEEEE;;
+    filter: drop-shadow(0px -3px 4px rgba(0, 0, 0, 0.04));
+}
+
+
+.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox .border{
+    border: 2px solid #91A5A7;
+border-radius: 2px;
+width: 24px;
+height: 24px;
+}
+
+.checkbox .indicator {
+    
+}
+
+.checkbox .label {
+    margin-left: 8px;
     color: #244D51;
+    
+}
+
+.dwn_ctx_hdr__title{
+    color: #1C383A;
+    font-weight: 600;
 }

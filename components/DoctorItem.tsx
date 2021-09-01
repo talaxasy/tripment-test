@@ -5,7 +5,7 @@ import dicaprio from '../public/dicaprio.png';
 import whoisit from '../public/whoisit.png';
 import matiew from '../public/matiew.png';
 import clunie from '../public/clunie.png';
-import {HeartIcon} from '../svg';
+import {HeartIcon, TelehealthIcon} from '../svg';
 
 interface DoctorItemProps {
   data: MockType;
@@ -26,7 +26,11 @@ const DoctorItem: React.FC<DoctorItemProps> = ({data}) => {
           />
         </div>
 
-        {data.telehealth && <div className="doctor_telehealth"></div>}
+        {data.telehealth && (
+          <div className="doctor_telehealth">
+            <TelehealthIcon />
+          </div>
+        )}
       </div>
 
       <div className="doctor__content">

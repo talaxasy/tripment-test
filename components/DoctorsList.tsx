@@ -1,22 +1,60 @@
 import React, {useEffect, useState} from 'react';
 import mock from '../mock.json';
+import DoctorItem from './DoctorItem';
 
 interface DoctorsListProps {}
 
-const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
-  const [doctors, setDoctors] = useState({});
-  console.log(mock);
+export type MockType = {
+  id: number;
+  name: string;
+  speciality: string;
+  experience: number;
+  gender: 'Male' | 'Female';
+  reviewsCount: number;
+  acceptNew: boolean;
+  address: string;
+  insurances: string;
+  telehealth: boolean;
+  telehealth_available: string;
+  offline_available: string;
+  price: number;
+};
 
-  useEffect(() => {}, []);
+const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
+  const [doctors, setDoctors] = useState<MockType[] | null>(null);
+
+  useEffect(() => {
+    setDoctors(JSON.parse('' + JSON.stringify(mock.data.items)));
+  }, []);
+
   return (
     <>
       <div>
-        <h1>Root Canal doctors in New York, NY</h1>
-        <p>The average price of a procedure in New York is $300</p>
-        <pre style={{userSelect: 'none', position: 'fixed', top: 0, right: 0, fontSize: '12px'}}>
-          {JSON.stringify(mock, null, 2)}
-          {/* {} */}
-        </pre>
+        <h2>Root Canal doctors in New York, NY</h2>
+        <div style={{display: 'flex', alignItems: 'flex-end', marginTop: 16}}>
+          <svg
+            style={{marginRight: 6}}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              fill-rule="evenodd"
+              clip-rule="evenodd"
+              d="M11 8C11 7.448 11.448 7 12 7C12.552 7 13 7.448 13 8C13 8.552 12.552 9 12 9C11.448 9 11 8.552 11 8ZM11 11C11 10.448 11.448 10 12 10C12.552 10 13 10.448 13 11V16C13 16.552 12.552 17 12 17C11.448 17 11 16.552 11 16V11ZM12 20C7.58899 20 3.99999 16.411 3.99999 12C3.99999 7.589 7.58899 4 12 4C16.411 4 20 7.589 20 12C20 16.411 16.411 20 12 20ZM12 2C6.477 2 2 6.477 2 12C2 17.523 6.477 22 12 22C17.522 22 22 17.523 22 12C22 6.477 17.522 2 12 2Z"
+              fill="#244D51"
+            />
+          </svg>
+          <p>The average price of a procedure in New York is $300</p>
+        </div>
+
+        <div style={{marginTop: '30px'}}>
+          {doctors?.map(el => (
+            <DoctorItem key={el.id} data={el} />
+          ))}
+        </div>
       </div>
     </>
   );

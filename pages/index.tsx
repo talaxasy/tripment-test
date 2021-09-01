@@ -1,10 +1,14 @@
 import DoctorsList from '../components/DoctorsList';
+import Filters from '../components/Filters';
 import Page from '../components/page';
 
 export default function Index() {
   return (
     <>
-      <DoctorsList />
+      <div className="main">
+        <Filters />
+        <DoctorsList />
+      </div>
     </>
   );
 }

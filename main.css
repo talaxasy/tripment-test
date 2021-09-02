@@ -288,10 +288,24 @@ letter-spacing: -0.3px;
 border-radius: 2px;
 width: 24px;
 height: 24px;
+position: relative;
 }
 
 .checkbox .indicator {
-    
+    position: absolute;
+    background: #244D51;
+    width: 16px;
+    height: 16px;
+    margin: 2px;
+    opacity: 0;
+    z-index: 1;
+    transform: scale(0);
+    transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.45s;
+}
+
+.checkbox .indicator.checked {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .checkbox .label {

@@ -1,31 +1,17 @@
 import React, {useEffect, useState} from 'react';
+import {MockType, useStore} from '../lib/store';
 import mock from '../mock.json';
 import {InfoIcon} from '../svg';
 import DoctorItem from './DoctorItem';
 
 interface DoctorsListProps {}
 
-export type MockType = {
-  id: number;
-  name: string;
-  speciality: string;
-  experience: number;
-  gender: 'Male' | 'Female';
-  reviewsCount: number;
-  acceptNew: boolean;
-  address: string;
-  insurances: string;
-  telehealth: boolean;
-  telehealth_available: string;
-  offline_available: string;
-  price: number;
-};
-
 const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
+  const {mock} = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
 
   useEffect(() => {
-    setDoctors(JSON.parse('' + JSON.stringify(mock.data.items)));
+    setDoctors(mock);
   }, []);
 
   return (

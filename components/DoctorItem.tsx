@@ -1,11 +1,11 @@
 import React from 'react';
-import {MockType} from './DoctorsList';
 import Image from 'next/image';
 import dicaprio from '../public/dicaprio.png';
 import whoisit from '../public/whoisit.png';
 import matiew from '../public/matiew.png';
 import clunie from '../public/clunie.png';
 import {HeartIcon, TelehealthIcon} from '../svg';
+import {MockType} from '../lib/store';
 
 interface DoctorItemProps {
   data: MockType;

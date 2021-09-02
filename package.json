@@ -16,11 +16,13 @@
     "@babel/core": "latest",
     "@babel/plugin-proposal-decorators": "latest",
     "@fortawesome/fontawesome-free": "^5.15.4",
+    "@types/lodash": "^4.14.172",
     "@types/next": "latest",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint-plugin-react": "latest",
+    "lodash": "^4.17.21",
     "prettier": "^2.3.2"
   },
   "prettier": {

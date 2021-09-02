@@ -1,15 +1,20 @@
 import React from 'react';
 
-interface CheckboxProps {}
+interface CheckboxProps {
+  name: string;
+  checked: boolean;
+  onChange: (x: boolean) => void;
+}
 
-const Checkbox: React.FC<CheckboxProps> = ({}) => {
+const Checkbox: React.FC<CheckboxProps> = ({name, checked, onChange}) => {
   return (
     <div className="checkbox">
-      <div className="border">
-        <div className="indicator" />
+      <div className="border" onClick={() => onChange(!checked)}>
+        <div className={`indicator ${checked && 'checked'}`} />
       </div>
       <div className="label">
-        Today<span style={{marginLeft: '8px', color: '#91A5A7'}}>(2)</span>
+        {name}
+        <span style={{marginLeft: '8px', color: '#91A5A7'}}>(2)</span>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import {useLayoutEffect} from 'react';
 import create from 'zustand';
 import createContext, {UseContextStore} from 'zustand/context';
+import mock from '../mock.json';
 
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
@@ -10,13 +11,31 @@ let store: import('zustand/index').UseStore<typeof initialState> | null = null;
 
 type InitialStateTypes = {
   count: number;
+  mock: MockType[];
   increment?: () => void;
   decrement?: () => void;
   reset?: () => void;
 };
 
+export type MockType = {
+  id: number;
+  name: string;
+  speciality: string;
+  experience: number;
+  gender: 'Male' | 'Female';
+  reviewsCount: number;
+  acceptNew: boolean;
+  address: string;
+  insurances: string;
+  telehealth: boolean;
+  telehealth_available: string;
+  offline_available: string;
+  price: number;
+};
+
 const initialState: InitialStateTypes = {
   count: 0,
+  mock: JSON.parse('' + JSON.stringify(mock.data.items)),
 };
 
 export const initializeStore = (preloadedState = {}) =>

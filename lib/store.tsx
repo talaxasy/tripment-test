@@ -5,6 +5,7 @@ import mock from '../mock.json';
 
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
+//set any to abandon conflicts of types
 export const useStore: any = zustandContext.useStore;
 
 let store: import('zustand/index').UseStore<FunctionsTypes> | null = null;
@@ -41,7 +42,7 @@ export type MockType = {
   name: string;
   speciality: string;
   experience: number;
-  gender: 'Male' | 'Female';
+  gender: string;
   reviewsCount: number;
   acceptNew: boolean;
   address: string;
@@ -50,10 +51,11 @@ export type MockType = {
   telehealth_available: string;
   offline_available: string;
   price: number;
+  img: number;
 };
 
 const initialState: InitialStateTypes = {
-  mock: JSON.parse('' + JSON.stringify(mock.data.items)),
+  mock: mock.data.items.map(el => ({...el, img: Math.floor(Math.random() * 4)})),
   searchParams: {
     avalibility: [],
     insurance: [],

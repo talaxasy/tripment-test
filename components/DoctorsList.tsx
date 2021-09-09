@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from 'react';
 import {MockType, useStore} from '../lib/store';
-import mock from '../mock.json';
 import {InfoIcon} from '../svg';
 import DoctorItem from './DoctorItem';
 

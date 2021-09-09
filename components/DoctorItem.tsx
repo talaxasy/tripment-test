@@ -12,13 +12,20 @@ interface DoctorItemProps {
 }
 
 const DoctorItem: React.FC<DoctorItemProps> = ({data}) => {
-  const rand = Math.floor(Math.random() * 4);
   return (
     <div className="doctor_item">
       <div style={{position: 'relative', zIndex: 1}}>
         <div className="doctor__img">
           <Image
-            src={rand === 0 ? dicaprio : rand === 1 ? whoisit : rand === 2 ? matiew : clunie}
+            src={
+              data.img === 0
+                ? dicaprio
+                : data.img === 1
+                ? whoisit
+                : data.img === 2
+                ? matiew
+                : clunie
+            }
             placeholder="blur"
             alt="Picture of the author"
             width={250}

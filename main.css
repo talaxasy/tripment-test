@@ -398,13 +398,12 @@ letter-spacing: -0.3px;
     height: 10px;
     z-index: 2;
 position: absolute;
-transform: translate(-50%, -50%);
+transform: translate(-50%, -50%) scale(0);
 top: 50%;
 left: 50%;
 
     opacity: 0;
     z-index: 1;
-    transform: scale(0);
     transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.25s;
 }
 
@@ -412,7 +411,7 @@ left: 50%;
 
 .checkbox .indicator.checked {
     opacity: 1;
-    transform: scale(1);
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .checkbox .label {

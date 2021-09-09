@@ -1,10 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import {useStore, MockType} from '../lib/store';
-import {ArrowDownIcon, SortIcon} from '../svg';
+import {useStore, MockType, FilterTypes} from '../lib/store';
+import {ArrowDownIcon, CrossIcon, HeartIcon, SearchIcon, SortIcon} from '../svg';
 import Checkbox from './Checkbox';
 import CheckboxGroup from './CheckboxGroup';
 
 import lodash from 'lodash';
+import RadioGroup from './RadioGroup';
+import SwitchButton from './SwitchButton';
+
+type CheckBoxState = {
+  name: string;
+  count: number;
+  checked: boolean;
+};
 
 type DropdownProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
@@ -14,87 +22,350 @@ type DropdownProps = React.DetailedHTMLProps<
 };
 
 const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
-  const {mock} = useStore();
+  const {
+    mock,
+    setSpeciality,
+    setInsurance,
+    setAvalibility,
+    setSort,
+    searchParams,
+    resetAvalibility,
+    resetInsurance,
+    resetSpeciality,
+    setProvidesOtherPayOptions,
+  } = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
-  const [specialites, setSpecialites] = useState<string[] | null>(null);
+  const [multiplyList, setMultiplyList] = useState<Array<CheckBoxState> | null>(null);
+  const [sortRadio, setSortRadio] = useState('Next available');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [provideOthPayOpt, setProvideOthPayOpt] = useState(false);
+
+  const [avalibility1Part, setAvalibility1Part] = useState<Array<CheckBoxState> | null>([
+    {name: 'Today', count: 0, checked: false},
+    {name: 'Next 3 days', count: 0, checked: false},
+    {name: 'Next 2 weeks', count: 0, checked: false},
+  ]);
+  const [avalibility2Part, setAvalibility2Part] = useState<Array<CheckBoxState> | null>([
+    {name: 'Telehealth', count: 0, checked: false},
+    {name: 'Accepts new patients', count: 0, checked: false},
+    {name: 'Schedules online', count: 0, checked: false},
+    {name: 'Treats сhildren', count: 0, checked: false},
+  ]);
+
+  useEffect(() => {
+    if (type === 'avalibility' && avalibility2Part && avalibility1Part) {
+      setMultiplyList([...avalibility1Part, ...avalibility2Part]);
+    }
+  }, []);
 
   useEffect(() => {
     setDoctors(mock);
   }, [mock]);
 
   useEffect(() => {
-    if (doctors) {
-      const setArr = new Set(doctors.map(doc => doc.speciality));
-      const specialitesArr = [...setArr];
-      console.log('specialitesArr', specialitesArr);
-
-      const obj = {a: 1, b: 2};
-
-      console.log('keys ', lodash.keys(obj));
-
-      const object = JSON.parse(
-        JSON.stringify(
-          doctors
-            .map(doc => doc.speciality)
-            .reduce((acc: any, el) => {
-              acc[el] = (acc[el] || 0) + 1;
-              console.log('acc', acc);
-              console.log('el', el);
-              return acc;
-            }, {}),
-          null,
-          2,
-        ),
-      );
-
-      console.log('object ', object);
-
-      setSpecialites(specialitesArr);
-    }
+    getMockNameCount(type);
   }, [doctors]);
 
-  //   const [checked, setChecked] = useState(false);
-  //   const array = ['wd', 'wd'];
+  const getMockNameCount = lodash.memoize((type: FilterTypes) => {
+    if (doctors) {
+      let object: any = {};
+      let arr: Array<{name: string; count: number; checked: boolean}> = [];
 
-  //   type typesf = 'a b c' | 'vvv1 w';
-  //   const record: Record<typesf, string> = {
-  //     'a b c': 'a b c',
-  //     'vvv1 w': 'vvv1 w',
-  //   };
-  //   console.log(record);
+      if (type === 'insurance') {
+        object = JSON.parse(
+          JSON.stringify(
+            doctors
+              .map(doc => doc.insurances)
+              .reduce((acc: any, el) => {
+                acc[el] = (acc[el] || 0) + 1;
+                return acc;
+              }, {}),
+            null,
+            2,
+          ),
+        );
+      }
+
+      if (type === 'speciality') {
+        object = JSON.parse(
+          JSON.stringify(
+            doctors
+              .map(doc => doc.speciality)
+              .reduce((acc: any, el) => {
+                acc[el] = (acc[el] || 0) + 1;
+                return acc;
+              }, {}),
+            null,
+            2,
+          ),
+        );
+      }
+
+      if (type === 'speciality' || type === 'insurance') {
+        for (let i = 0; i < lodash.keys(object).length; i++) {
+          arr.push({
+            name: lodash.keys(object)[i],
+            count: lodash.values(object)[i] > 0 ? lodash.values(object)[i] : 0,
+            checked: false,
+          });
+        }
+      }
+
+      if (type === 'avalibility') {
+        multiplyList?.forEach(el => {
+          if (el.name === 'Today') {
+            el.count = 2;
+          }
+        });
+      }
+
+      // const arrCount:
+
+      // if (type === 'avalibility') {
+      //   let avalibilityArray: number[] | null = null;
+      //   avalibilityArray = doctors.map(el => {
+      //     if(name === 'Today'){
+      //       if(el.offline_available > Date.now()){
+      //         return el.id;
+      //       }
+      //     }
+
+      //   })
+      // }
+      arr.length && setMultiplyList(arr);
+    }
+  });
+
+  const updateChecbox = lodash.memoize((revertChecked: boolean, idx2: string) => {
+    if (multiplyList) {
+      setMultiplyList(
+        multiplyList.map(el => (el.name === idx2 ? {...el, checked: revertChecked} : el)),
+      );
+    }
+
+    if (type === 'avalibility') {
+      setAvalibility1Part(
+        avalibility1Part!.map(el => (el.name === idx2 ? {...el, checked: revertChecked} : el)),
+      );
+      setAvalibility2Part(
+        avalibility2Part!.map(el => (el.name === idx2 ? {...el, checked: revertChecked} : el)),
+      );
+    }
+  });
+
+  const submitHandler = lodash.memoize((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    e.preventDefault();
+    console.log(searchParams);
+    if (type === 'sort') {
+      setSort(sortRadio);
+    }
+    //Zustand setup
+    let newArr: string[] = [];
+    if (!!multiplyList) {
+      if (type === 'insurance') {
+        multiplyList.forEach(el => el.checked && newArr.push(el.name));
+        setInsurance(newArr);
+        setProvidesOtherPayOptions(provideOthPayOpt);
+      }
+      if (type === 'speciality') {
+        multiplyList.forEach(el => el.checked && newArr.push(el.name));
+        setSpeciality(newArr);
+      }
+
+      if (type === 'avalibility') {
+        multiplyList.forEach(el => el.checked && newArr.push(el.name));
+        setAvalibility(newArr);
+      }
+    }
+  });
+
+  const resetFilter = lodash.memoize(() => {
+    if (!!multiplyList) {
+      setMultiplyList(
+        multiplyList.map(el => {
+          el.checked = false;
+          return el;
+        }),
+      );
+    }
+
+    setAvalibility1Part(
+      avalibility1Part!.map(el => {
+        el.checked = false;
+        return el;
+      }),
+    );
+    setAvalibility2Part(
+      avalibility2Part!.map(el => {
+        el.checked = false;
+        return el;
+      }),
+    );
+
+    if (type === 'avalibility') {
+      resetAvalibility();
+    }
+
+    if (type === 'speciality') {
+      resetSpeciality();
+    }
+
+    if (type === 'insurance') {
+      resetInsurance();
+    }
+  });
 
   return (
     <div className="select_btn" {...rest}>
       {type === 'sort' && <SortIcon />}
       <span style={{margin: type !== 'sort' ? '0 10px 0 0' : '0 10px'}}>
         {type[0].toUpperCase() + type.slice(1)}
+        {searchParams.insurance.length !== 0 && type === 'insurance' && (
+          <>
+            {' '}
+            <span style={{fontWeight: 900}}>·</span>{' '}
+            <span style={{fontWeight: 500}}>{searchParams.insurance.length}</span>
+          </>
+        )}
+        {searchParams.avalibility.length !== 0 && type === 'avalibility' && (
+          <>
+            {' '}
+            <span style={{fontWeight: 900}}>·</span>{' '}
+            <span style={{fontWeight: 500}}>{searchParams.avalibility.length}</span>
+          </>
+        )}
+        {searchParams.speciality.length !== 0 && type === 'speciality' && (
+          <>
+            {' '}
+            <span style={{fontWeight: 900}}>·</span>{' '}
+            <span style={{fontWeight: 500}}>{searchParams.speciality.length}</span>
+          </>
+        )}
       </span>
-      <ArrowDownIcon />
-      <div className="dropdown_content">
-        <div className="dropdown_content__header">
-          <span className="dwn_ctx_hdr__title">Availability</span>
-          <CheckboxGroup type={type} />
-          <pre>
-            {JSON.stringify(
-              ['abc', 'abc', 'bbb b', 'aa a', 'bbb b', 'bbb b', 'ccc', 'd'].reduce((acc, el) => {
-                acc[el] = (acc[el] || 0) + 1;
-                return acc;
-              }, {}),
-              null,
-              2,
-            )}
-          </pre>
 
-          {/* <Checkbox key={1} checked={checked} onChange={x => setChecked(x)} name="Today" />
-          <Checkbox key={2} checked={checked} onChange={x => setChecked(x)} name="Next 3 days" />
-          <Checkbox key={3} checked={checked} onChange={x => setChecked(x)} name="Next 2 weeks" /> */}
+      {searchParams.speciality.length !== 0 && type === 'speciality' ? (
+        <div style={{display: 'inline-flex'}}>
+          <CrossIcon />
         </div>
-        <div className="dropdown_content__footer">
-          <span className="reset_link" style={{fontSize: '14px', lineHeight: '18px'}}>
-            Reset
+      ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
+        <div style={{display: 'inline-flex'}}>
+          <CrossIcon />
+        </div>
+      ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
+        <div style={{display: 'inline-flex'}}>
+          <CrossIcon />
+        </div>
+      ) : (
+        <ArrowDownIcon />
+      )}
+
+      <div
+        className="dropdown_content"
+        style={{
+          minHeight: type === 'speciality' || type === 'insurance' ? '500px' : undefined,
+          minWidth:
+            type === 'avalibility'
+              ? '320px'
+              : type === 'speciality' || type === 'insurance'
+              ? '375px'
+              : '266px',
+        }}
+      >
+        <div
+          className="dropdown_content__header"
+          style={{
+            paddingBottom: type === 'sort' ? '34px' : undefined,
+          }}
+        >
+          <span
+            className="dwn_ctx_hdr__title"
+            style={{
+              display: 'block',
+              paddingTop: type !== 'sort' && type !== 'avalibility' ? '8px' : undefined,
+              paddingBottom: type === 'sort' || type === 'avalibility' ? '16px' : undefined,
+            }}
+          >
+            {type === 'sort' && 'Sort by'}
+            {type === 'avalibility' && 'Avalibility'}
           </span>
-          <button>Apply</button>
+
+          {type === 'insurance' && (
+            <>
+              <SwitchButton
+                name="Provides other than insurance payment options"
+                checked={provideOthPayOpt}
+                onChange={revertChecked => setProvideOthPayOpt(revertChecked)}
+              />
+              <hr style={{opacity: 0.2, margin: '16px 0'}} />
+            </>
+          )}
+
+          {type === 'insurance' || type === 'speciality' ? (
+            <>
+              <div className="search_filter">
+                <input
+                  type="text"
+                  placeholder={
+                    type === 'speciality' ? 'Filter by speciality' : 'Filter by insurance carrier'
+                  }
+                  onChange={e => {
+                    setSearchTerm(e.target.value);
+                  }}
+                />
+                <SearchIcon className="search_icon" />
+              </div>
+              <CheckboxGroup
+                array={multiplyList}
+                type={type}
+                setChecked={(revertChecked, idx) => updateChecbox(revertChecked, idx)}
+                searchTerm={searchTerm}
+              />
+            </>
+          ) : null}
+
+          {type === 'sort' && (
+            <RadioGroup
+              array={['Next available', 'Most Experienced']}
+              setChecked={name => {
+                setSortRadio(name);
+                setSort(name);
+              }}
+              current={sortRadio}
+            />
+          )}
+
+          {type === 'avalibility' && (
+            <>
+              <CheckboxGroup
+                array={avalibility1Part}
+                type={type}
+                setChecked={(revertChecked, idx) => updateChecbox(revertChecked, idx)}
+              />
+
+              <hr style={{opacity: 0.2, margin: '16px 0'}} />
+
+              <CheckboxGroup
+                array={avalibility2Part}
+                type={type}
+                setChecked={(revertChecked, idx) => updateChecbox(revertChecked, idx)}
+              />
+            </>
+          )}
         </div>
+        {type !== 'sort' && (
+          <div className="dropdown_content__footer">
+            <span
+              className="reset_link"
+              style={{fontSize: '14px', lineHeight: '18px'}}
+              onClick={() => resetFilter()}
+            >
+              Reset
+            </span>
+            <button type="button" className="apply_btn" onClick={e => submitHandler(e)}>
+              Apply
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

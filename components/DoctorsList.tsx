@@ -7,12 +7,15 @@ import DoctorItem from './DoctorItem';
 interface DoctorsListProps {}
 
 const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
-  const {mock} = useStore();
+  const {mock, searchParams} = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
+  const [list, setList] = useState<null>(null);
 
   useEffect(() => {
     setDoctors(mock);
   }, []);
+
+  useEffect(() => {}, [searchParams]);
 
   return (
     <>
@@ -24,9 +27,25 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
         </div>
 
         <div style={{marginTop: '30px'}}>
-          {doctors?.map(el => (
-            <DoctorItem key={el.id} data={el} />
-          ))}
+          {list}
+          {doctors?.map(doc => {
+            if (
+              searchParams.avalibility.length ||
+              searchParams.insurance.length ||
+              searchParams.speciality.length
+            ) {
+              let doctor: any = null;
+              (searchParams.speciality as string[]).forEach(spec => {
+                if (spec === doc.speciality) {
+                  doctor = <DoctorItem key={doc.id} data={doc} />;
+                }
+              });
+              return doctor;
+            }
+
+            return <DoctorItem key={doc.id} data={doc} />;
+          })}
+          <pre></pre>
         </div>
       </div>
     </>

@@ -5,16 +5,33 @@ import mock from '../mock.json';
 
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
-export const useStore: UseContextStore<typeof initialState> = zustandContext.useStore;
+export const useStore: UseContextStore<FunctionsTypes> = zustandContext.useStore;
 
-let store: import('zustand/index').UseStore<typeof initialState> | null = null;
+let store: import('zustand/index').UseStore<FunctionsTypes> | null = null;
+
+export type FilterTypes = 'avalibility' | 'insurance' | 'speciality' | 'sort';
 
 type InitialStateTypes = {
-  count: number;
   mock: MockType[];
-  increment?: () => void;
-  decrement?: () => void;
-  reset?: () => void;
+  searchParams: {
+    avalibility: string[];
+    insurance: string[];
+    speciality: string[];
+    sort: string;
+    providesOtherPaymentsOptions: boolean;
+  };
+};
+
+type FunctionsTypes = InitialStateTypes & {
+  setAvalibility: (arr: string[] | []) => void;
+  setSpeciality: (arr: string[] | []) => void;
+  setInsurance: (arr: string[] | []) => void;
+  setSort: (str: string) => void;
+  resetInsurance: () => void;
+  resetAvalibility: () => void;
+  resetSpeciality: () => void;
+  setProvidesOtherPayOptions: (boo: boolean) => void;
+  resetAllFilters: () => void;
 };
 
 export type MockType = {
@@ -34,41 +51,80 @@ export type MockType = {
 };
 
 const initialState: InitialStateTypes = {
-  count: 0,
   mock: JSON.parse('' + JSON.stringify(mock.data.items)),
+  searchParams: {
+    avalibility: [],
+    insurance: [],
+    speciality: [],
+    sort: 'Next available',
+    providesOtherPaymentsOptions: false,
+  },
 };
 
 export const initializeStore = (preloadedState = {}) =>
-  create<InitialStateTypes>((set, get) => ({
+  create<FunctionsTypes>((set, get) => ({
     ...initialState,
     ...preloadedState,
-    increment: () => {
+    setAvalibility: (arr: string[] | []) => {
       set({
-        count: get().count + 1,
+        searchParams: {...get().searchParams, avalibility: arr},
       });
     },
-    decrement: () => {
+    setSpeciality: (arr: string[] | []) => {
       set({
-        count: get().count - 1,
+        searchParams: {...get().searchParams, speciality: arr},
       });
     },
-    reset: () => {
+    setInsurance: (arr: string[] | []) => {
       set({
-        count: initialState.count,
+        searchParams: {...get().searchParams, insurance: arr},
+      });
+    },
+    setSort: (arr: string) => {
+      set({
+        searchParams: {...get().searchParams, sort: arr},
+      });
+    },
+    setProvidesOtherPayOptions: (boo: boolean) => {
+      set({
+        searchParams: {...get().searchParams, providesOtherPaymentsOptions: boo},
+      });
+    },
+    resetAvalibility: () => {
+      set({
+        searchParams: {...get().searchParams, avalibility: []},
+      });
+    },
+    resetSpeciality: () => {
+      set({
+        searchParams: {...get().searchParams, speciality: []},
+      });
+    },
+    resetInsurance: () => {
+      set({
+        searchParams: {...get().searchParams, insurance: [], providesOtherPaymentsOptions: false},
+      });
+    },
+    resetAllFilters: () => {
+      set({
+        searchParams: {
+          insurance: [],
+          avalibility: [],
+          speciality: [],
+          sort: 'Next available',
+          providesOtherPaymentsOptions: false,
+        },
       });
     },
   }));
 
 export function useCreateStore(initialState: InitialStateTypes) {
-  // For SSR & SSG, always use a new store.
   if (typeof window === 'undefined') {
     return () => initializeStore(initialState);
   }
 
-  // For CSR, always re-use same store.
   store = store ?? initializeStore(initialState);
 
-  // And if initialState changes, then merge states in the next render cycle.
   useLayoutEffect(() => {
     if (initialState && store) {
       store.setState({

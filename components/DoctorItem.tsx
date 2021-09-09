@@ -28,7 +28,7 @@ const DoctorItem: React.FC<DoctorItemProps> = ({data}) => {
 
         {data.telehealth && (
           <div className="doctor_telehealth">
-            <TelehealthIcon />
+            <TelehealthIcon width={32} height={32} />
           </div>
         )}
       </div>
@@ -39,7 +39,8 @@ const DoctorItem: React.FC<DoctorItemProps> = ({data}) => {
         </div>
         <div className="doc_B" style={{alignItems: 'flex-end'}}>
           <p>
-            Dentist<span className="dot">·</span>
+            {data.speciality}
+            <span className="dot">·</span>
             {data.experience} Years Experience<span className="dot">·</span>
             <span style={{color: '#D97767'}}>{data.reviewsCount} Reviews</span>
           </p>

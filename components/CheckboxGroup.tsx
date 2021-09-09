@@ -1,37 +1,45 @@
-import React, {useState} from 'react';
-import {useStore} from '../lib/store';
+import React, {useEffect, useState} from 'react';
 import Checkbox from './Checkbox';
 
 interface CheckboxGroupProps {
-  customArray?: string[];
-  apiArray?: Array<{name: string; count: number}>;
-  type: string;
+  array?: Array<{name: string; count?: number; checked: boolean}> | null;
+  type?: string;
+  searchTerm?: string;
+  setChecked: (revertChecked: boolean, idx: string) => void;
 }
 
-const CheckboxGroup: React.FC<CheckboxGroupProps> = ({customArray, apiArray, type}) => {
-  const arr1 = [];
-  if (type === 'avalibility') {
-  }
-  const ApiArrayKeys: Record<string, any> = {};
-
-  const [cusCheck, setCusCheck] = useState<typeof ApiArrayKeys>({});
-
+const CheckboxGroup: React.FC<CheckboxGroupProps> = ({array, searchTerm = '', setChecked}) => {
   return (
-    <>
-      {/* {apiArray?.length &&
-        apiArray.map(el => (
-          <Checkbox
-            key={el.name}
-            checked={checked}
-            onChange={x => setChecked(x)}
-            name="Next 3 days"
-          />
-        ))}
-      {customArray?.length &&
-        customArray.map(el => (
-          <Checkbox key={el} checked={checked} onChange={x => setChecked(x)} name="Next 3 days" />
-        ))} */}
-    </>
+    <div className="checkbox_group">
+      {array?.length
+        ? array
+            .filter(el => {
+              if (searchTerm === '') {
+                return el;
+              } else if (searchTerm && el.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                return el;
+              }
+            })
+            .map(el => (
+              <Checkbox
+                key={el.name}
+                checked={el.checked}
+                onChange={revertChecked => setChecked(revertChecked, el.name)}
+                name={el.name}
+                count={el.count}
+              />
+            ))
+        : null}
+
+      {array?.length &&
+        array.filter(el => {
+          if (searchTerm === '') {
+            return el;
+          } else if (searchTerm && el.name.toLowerCase().includes(searchTerm.toLowerCase())) {
+            return el;
+          }
+        }).length === 0 && <span style={{opacity: 0.4}}>Nothing found</span>}
+    </div>
   );
 };
 

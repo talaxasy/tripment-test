@@ -71,7 +71,7 @@
           "reviewsCount": 449,
           "acceptNew": false,
           "address": "6613 Spaight Terrace",
-          "insurances": "",
+          "insurances": "AFLAC",
           "telehealth": true,
           "telehealth_available": "4/7/2021",
           "offline_available": "2/22/2021",
@@ -1153,7 +1153,7 @@
           "address": "4 Nobel Lane",
           "insurances": "CFC Underwriting",
           "telehealth": true,
-          "telehealth_available": "3/2/2021",
+          "telehealth_available": "9/20/2021",
           "offline_available": "5/28/2021",
           "price": 100
         },
@@ -1169,7 +1169,7 @@
           "insurances": "Crawford & Company",
           "telehealth": false,
           "telehealth_available": "5/17/2021",
-          "offline_available": "2/5/2021",
+          "offline_available": "9/15/2021",
           "price": 7900
         },
         {
@@ -1213,8 +1213,8 @@
           "address": "128 Rieder Lane",
           "insurances": "Brown & Riding",
           "telehealth": true,
-          "telehealth_available": "8/6/2021",
-          "offline_available": "4/6/2021",
+          "telehealth_available": "10/12/2021",
+          "offline_available": "9/10/2021",
           "price": 6000
         },
         {

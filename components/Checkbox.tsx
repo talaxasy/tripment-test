@@ -13,6 +13,7 @@ const Checkbox: React.FC<CheckboxProps> = ({name, checked, onChange, count}) => 
     <div className="checkbox">
       <div className="border" onClick={() => onChange(!checked)}>
         <OkIcon className={`indicator ${checked && 'checked'}`} />
+        <div className="somediv"></div>
       </div>
       <div className="label" onClick={() => onChange(!checked)}>
         {name === 'Telehealth' && (

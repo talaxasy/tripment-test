@@ -290,6 +290,8 @@ button {
     max-height: 370px;
     overflow-y: auto;
     padding-right: 10px;
+    margin-left: -20px;
+    padding-left: 20px;
 }
 
 .checkbox_group::-webkit-scrollbar {
@@ -307,6 +309,8 @@ button {
     border-radius: 100px;
     background: #327680;
 }
+
+
 
 .radio_indicator{
     width: 12px;
@@ -389,6 +393,23 @@ letter-spacing: -0.3px;
     height: 24px;
     position: relative;
     cursor: pointer;
+}
+
+.checkbox .border:after{
+    content: '';
+    position: absolute;
+    display: block;
+    width: 40px;
+    height: 40px;
+    background: rgba(0, 0, 0, 0.123);
+    border-radius: 100%;
+    transform: translate(-50%, -50%) scale(0);
+top: 50%;
+left: 50%;
+transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.45s;
+}
+.checkbox .border:hover:after{
+    transform: translate(-50%, -50%) scale(1);
 }
 
 .checkbox .indicator {

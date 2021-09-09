@@ -5,7 +5,7 @@ import mock from '../mock.json';
 
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
-export const useStore: UseContextStore<FunctionsTypes> = zustandContext.useStore;
+export const useStore: any = zustandContext.useStore;
 
 let store: import('zustand/index').UseStore<FunctionsTypes> | null = null;
 
@@ -20,6 +20,7 @@ type InitialStateTypes = {
     sort: string;
     providesOtherPaymentsOptions: boolean;
   };
+  modalType: string;
 };
 
 type FunctionsTypes = InitialStateTypes & {
@@ -32,6 +33,7 @@ type FunctionsTypes = InitialStateTypes & {
   resetSpeciality: () => void;
   setProvidesOtherPayOptions: (boo: boolean) => void;
   resetAllFilters: () => void;
+  setModalType: (type: string) => void;
 };
 
 export type MockType = {
@@ -59,6 +61,7 @@ const initialState: InitialStateTypes = {
     sort: 'Next available',
     providesOtherPaymentsOptions: false,
   },
+  modalType: 'none',
 };
 
 export const initializeStore = (preloadedState = {}) =>
@@ -114,6 +117,11 @@ export const initializeStore = (preloadedState = {}) =>
           sort: 'Next available',
           providesOtherPaymentsOptions: false,
         },
+      });
+    },
+    setModalType: (type: string) => {
+      set({
+        modalType: type,
       });
     },
   }));

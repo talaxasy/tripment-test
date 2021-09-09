@@ -11,7 +11,7 @@ interface CheckboxProps {
 const Checkbox: React.FC<CheckboxProps> = ({name, checked, onChange, count}) => {
   return (
     <div className="checkbox">
-      <div className="border" onClick={() => onChange(!checked)}>
+      <div className={`border ${checked && 'checked'}`} onClick={() => onChange(!checked)}>
         <OkIcon className={`indicator ${checked && 'checked'}`} />
         <div className="somediv"></div>
       </div>

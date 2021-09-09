@@ -196,7 +196,35 @@ button {
     color: #244d51;
 }
 
-.select_btn>span {
+.outer{
+    display: flex;
+    align-items: center;
+}
+
+.outer svg{
+    transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.45s;;
+}
+
+.select_btn.checked{
+    background: #327680;
+    border-color: #327680;
+}
+
+.select_btn.checked > .outer{
+    color: #fff;
+
+}
+
+.select_btn.checked > .outer path{
+    fill: #fff;
+    
+}
+
+.select_btn.checked > .outer svg{
+    transform: rotate(180deg);
+}
+
+.select_btn>.outer>span {
     font-family: Inter;
     font-style: normal;
     font-weight: normal;
@@ -246,6 +274,7 @@ button {
 }
 
 .dropdown_content {
+    display: none;
     cursor: default;
     position: absolute;
     background: #fff;
@@ -401,7 +430,7 @@ letter-spacing: -0.3px;
     display: block;
     width: 40px;
     height: 40px;
-    background: rgba(0, 0, 0, 0.123);
+    background: rgba(0, 0, 0, 0.07);
     border-radius: 100%;
     transform: translate(-50%, -50%) scale(0);
 top: 50%;
@@ -412,9 +441,18 @@ transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.45s;
     transform: translate(-50%, -50%) scale(1);
 }
 
+.checkbox .border.checked{
+    border-color: #244D51;
+    background: #244D51;
+}
+
+.checkbox .border:active::after{
+    background: #004e572a
+}
+
 .checkbox .indicator {
     cursor: pointer;
-    fill: #244D51;
+    
     width: 13.333px;
     height: 10px;
     z-index: 2;
@@ -426,6 +464,10 @@ left: 50%;
     opacity: 0;
     z-index: 1;
     transition: all cubic-bezier(0, 1.18, 0.78, 0.99) 0.25s;
+}
+
+.checkbox .indicator path{
+    fill: #fff;
 }
 
 

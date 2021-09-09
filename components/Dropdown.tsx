@@ -33,12 +33,15 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
     resetInsurance,
     resetSpeciality,
     setProvidesOtherPayOptions,
+    setModalType,
+    modalType,
   } = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
   const [multiplyList, setMultiplyList] = useState<Array<CheckBoxState> | null>(null);
   const [sortRadio, setSortRadio] = useState('Next available');
   const [searchTerm, setSearchTerm] = useState('');
   const [provideOthPayOpt, setProvideOthPayOpt] = useState(false);
+  const [openModal, setOpenModal] = useState('none');
 
   const [avalibility1Part, setAvalibility1Part] = useState<Array<CheckBoxState> | null>([
     {name: 'Today', count: 0, checked: false},
@@ -216,51 +219,61 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   });
 
   return (
-    <div className="select_btn" {...rest}>
-      {type === 'sort' && <SortIcon />}
-      <span style={{margin: type !== 'sort' ? '0 10px 0 0' : '0 10px'}}>
-        {type[0].toUpperCase() + type.slice(1)}
-        {searchParams.insurance.length !== 0 && type === 'insurance' && (
-          <>
-            {' '}
-            <span style={{fontWeight: 900}}>·</span>{' '}
-            <span style={{fontWeight: 500}}>{searchParams.insurance.length}</span>
-          </>
-        )}
-        {searchParams.avalibility.length !== 0 && type === 'avalibility' && (
-          <>
-            {' '}
-            <span style={{fontWeight: 900}}>·</span>{' '}
-            <span style={{fontWeight: 500}}>{searchParams.avalibility.length}</span>
-          </>
-        )}
-        {searchParams.speciality.length !== 0 && type === 'speciality' && (
-          <>
-            {' '}
-            <span style={{fontWeight: 900}}>·</span>{' '}
-            <span style={{fontWeight: 500}}>{searchParams.speciality.length}</span>
-          </>
-        )}
-      </span>
+    <div className={`select_btn ${modalType === type && 'checked'}`} {...rest}>
+      <div
+        className="outer"
+        onClick={() => {
+          setModalType(modalType !== type ? type : 'none');
+        }}
+      >
+        {type === 'sort' && <SortIcon />}
+        <span style={{margin: type !== 'sort' ? '0 10px 0 0' : '0 10px'}}>
+          {type[0].toUpperCase() + type.slice(1)}
+          {searchParams.insurance.length !== 0 && type === 'insurance' && (
+            <>
+              {' '}
+              <span style={{fontWeight: 900}}>·</span>{' '}
+              <span style={{fontWeight: 500}}>{searchParams.insurance.length}</span>
+            </>
+          )}
+          {searchParams.avalibility.length !== 0 && type === 'avalibility' && (
+            <>
+              {' '}
+              <span style={{fontWeight: 900}}>·</span>{' '}
+              <span style={{fontWeight: 500}}>{searchParams.avalibility.length}</span>
+            </>
+          )}
+          {searchParams.speciality.length !== 0 && type === 'speciality' && (
+            <>
+              {' '}
+              <span style={{fontWeight: 900}}>·</span>{' '}
+              <span style={{fontWeight: 500}}>{searchParams.speciality.length}</span>
+            </>
+          )}
+        </span>
 
-      {searchParams.speciality.length !== 0 && type === 'speciality' ? (
-        <div style={{display: 'inline-flex'}}>
-          <CrossIcon />
-        </div>
-      ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
-        <div style={{display: 'inline-flex'}}>
-          <CrossIcon />
-        </div>
-      ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
-        <div style={{display: 'inline-flex'}}>
-          <CrossIcon />
-        </div>
-      ) : (
-        <ArrowDownIcon />
-      )}
+        {searchParams.speciality.length !== 0 && type === 'speciality' ? (
+          <div style={{display: 'inline-flex'}} onClick={resetSpeciality}>
+            <CrossIcon />
+          </div>
+        ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
+          <div style={{display: 'inline-flex'}} onClick={resetAvalibility}>
+            <CrossIcon />
+          </div>
+        ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
+          <div style={{display: 'inline-flex'}} onClick={resetInsurance}>
+            <CrossIcon />
+          </div>
+        ) : (
+          <ArrowDownIcon />
+        )}
+      </div>
 
       <div
         className="dropdown_content"
+        onBlur={() => {
+          setModalType('none');
+        }}
         style={{
           minHeight: type === 'speciality' || type === 'insurance' ? '500px' : undefined,
           minWidth:
@@ -269,6 +282,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
               : type === 'speciality' || type === 'insurance'
               ? '375px'
               : '266px',
+          display: modalType === type ? 'flex' : 'none',
         }}
       >
         <div

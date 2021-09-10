@@ -5,8 +5,8 @@ import mock from '../mock.json';
 
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
-//set any to abandon conflicts of types
-export const useStore: any = zustandContext.useStore;
+//set any to abandon conflicts of types, instead of UseContextStore<FunctionsTypes>
+export const useStore: UseContextStore<FunctionsTypes> = zustandContext.useStore;
 
 let store: import('zustand/index').UseStore<FunctionsTypes> | null = null;
 
@@ -15,7 +15,7 @@ export type FilterTypes = 'avalibility' | 'insurance' | 'speciality' | 'sort';
 type InitialStateTypes = {
   mock: MockType[];
   searchParams: {
-    avalibility: string[];
+    avalibility: Array<{title: string; people: number[]}>;
     insurance: string[];
     speciality: string[];
     sort: string;
@@ -25,7 +25,7 @@ type InitialStateTypes = {
 };
 
 type FunctionsTypes = InitialStateTypes & {
-  setAvalibility: (arr: string[] | []) => void;
+  setAvalibility: (arr: Array<{title: string; people: number[]}> | []) => void;
   setSpeciality: (arr: string[] | []) => void;
   setInsurance: (arr: string[] | []) => void;
   setSort: (str: string) => void;
@@ -70,7 +70,7 @@ export const initializeStore = (preloadedState = {}) =>
   create<FunctionsTypes>((set, get) => ({
     ...initialState,
     ...preloadedState,
-    setAvalibility: (arr: string[] | []) => {
+    setAvalibility: (arr: Array<{title: string; people: number[]}> | []) => {
       set({
         searchParams: {...get().searchParams, avalibility: arr},
       });

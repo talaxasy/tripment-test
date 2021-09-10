@@ -1,3 +1,4 @@
+import moment from 'moment';
 import React, {useEffect, useState} from 'react';
 import {MockType, useStore} from '../lib/store';
 import {InfoIcon} from '../svg';
@@ -8,13 +9,79 @@ interface DoctorsListProps {}
 const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
   const {mock, searchParams} = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
-  const [list, setList] = useState<null>(null);
+  const [list, setList] = useState<null | undefined | any[]>(null);
+
+  const filterSearch = () => {
+    //Speciality
+    let specialityArr: number[] = [];
+    doctors?.forEach(doc => {
+      let flag = false;
+      searchParams.speciality.forEach(spec => {
+        if (spec === doc.speciality) {
+          flag = true;
+        }
+      });
+      flag && specialityArr.push(doc.id);
+    });
+
+    //Insurance
+    let insuranceArr: number[] = [];
+    doctors?.forEach(doc => {
+      let flag = false;
+      searchParams.insurance.forEach(ins => {
+        if (ins === doc.insurances) {
+          flag = true;
+        }
+      });
+      flag && insuranceArr.push(doc.id);
+    });
+
+    //Avalibility
+    let avalibilityArr: number[] = [];
+    searchParams.avalibility.forEach(aval => {
+      if (aval.title === 'Today') {
+        avalibilityArr.push(...aval.people);
+      }
+
+      if (aval.title === 'Next 3 days') {
+        avalibilityArr.push(...aval.people);
+      }
+
+      if (aval.title === 'Next 2 weeks') {
+        avalibilityArr.push(...aval.people);
+      }
+
+      if (aval.title === 'Telehealth') {
+        avalibilityArr.push(...aval.people);
+      }
+      if (aval.title === 'Accepts new patients') {
+        avalibilityArr.push(...aval.people);
+      }
+      if (aval.title === 'Schedules online') {
+        avalibilityArr.push(...aval.people);
+      }
+    });
+
+    let mergedArr = [...new Set([...specialityArr, ...insuranceArr, ...avalibilityArr])];
+
+    setList(
+      doctors?.map(doc => {
+        return mergedArr.map(id => id === doc.id && <DoctorItem data={doc} key={doc.id} />);
+      }),
+    );
+  };
 
   useEffect(() => {
     setDoctors(mock);
   }, []);
 
-  useEffect(() => {}, [searchParams]);
+  useEffect(() => {
+    setList(mock.map(el => <DoctorItem data={el} key={el.id} />));
+  }, [doctors]);
+
+  useEffect(() => {
+    filterSearch();
+  }, [searchParams]);
 
   return (
     <>
@@ -26,24 +93,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
         </div>
 
         <div style={{marginTop: '30px'}}>
-          {list}
-          {doctors?.map(doc => {
-            if (
-              searchParams.avalibility.length ||
-              searchParams.insurance.length ||
-              searchParams.speciality.length
-            ) {
-              let doctor: any = null;
-              (searchParams.speciality as string[]).forEach(spec => {
-                if (spec === doc.speciality) {
-                  doctor = <DoctorItem key={doc.id} data={doc} />;
-                }
-              });
-              return doctor;
-            }
-
-            return <DoctorItem key={doc.id} data={doc} />;
-          })}
+          {list ? list : 'loading...'}
           <pre></pre>
         </div>
       </div>

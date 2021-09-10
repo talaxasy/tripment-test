@@ -20,7 +20,7 @@ const Checkbox: React.FC<CheckboxProps> = ({name, checked, onChange, count}) => 
           <TelehealthIcon width={24} height={24} style={{marginRight: '8px'}} />
         )}
         {name}
-        {count && <span style={{marginLeft: '8px', color: '#91A5A7'}}>{`(${count})`}</span>}
+        <span style={{marginLeft: '8px', color: '#91A5A7'}}>{`(${count && count})`}</span>
       </div>
     </div>
   );

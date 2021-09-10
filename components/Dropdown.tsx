@@ -7,11 +7,13 @@ import CheckboxGroup from './CheckboxGroup';
 import lodash from 'lodash';
 import RadioGroup from './RadioGroup';
 import SwitchButton from './SwitchButton';
+import moment from 'moment';
 
 type CheckBoxState = {
   name: string;
   count: number;
   checked: boolean;
+  arr?: number[];
 };
 
 type DropdownProps = React.DetailedHTMLProps<
@@ -41,7 +43,6 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   const [sortRadio, setSortRadio] = useState('Next available');
   const [searchTerm, setSearchTerm] = useState('');
   const [provideOthPayOpt, setProvideOthPayOpt] = useState(false);
-  const [openModal, setOpenModal] = useState('none');
 
   const [avalibility1Part, setAvalibility1Part] = useState<Array<CheckBoxState> | null>([
     {name: 'Today', count: 0, checked: false},
@@ -68,6 +69,10 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   useEffect(() => {
     getMockNameCount(type);
   }, [doctors]);
+
+  // useEffect(() => {
+  //   console.log('searchParams', searchParams);
+  // });
 
   const getMockNameCount = lodash.memoize((type: FilterTypes) => {
     if (doctors) {
@@ -115,26 +120,111 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
       }
 
       if (type === 'avalibility') {
-        multiplyList?.forEach(el => {
+        multiplyList?.map(el => {
           if (el.name === 'Today') {
-            el.count = 2;
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (
+                moment(doc.telehealth_available).isSameOrAfter(moment()) ||
+                moment(doc.offline_available).isSameOrAfter(moment())
+              ) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
           }
+          if (el.name === 'Next 3 days') {
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (
+                moment(doc.telehealth_available).isBetween(
+                  moment(),
+                  moment().add(3, 'days'),
+                  undefined,
+                  '[]',
+                ) ||
+                moment(doc.offline_available).isBetween(
+                  moment(),
+                  moment().add(3, 'days'),
+                  undefined,
+                  '[]',
+                )
+              ) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
+          }
+          if (el.name === 'Next 2 weeks') {
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (
+                moment(doc.telehealth_available).isBetween(
+                  moment(),
+                  moment().add(2, 'weeks'),
+                  undefined,
+                  '[]',
+                ) ||
+                moment(doc.offline_available).isBetween(
+                  moment(),
+                  moment().add(2, 'weeks'),
+                  undefined,
+                  '[]',
+                )
+              ) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
+          }
+
+          if (el.name === 'Telehealth') {
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (doc.telehealth) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
+          }
+
+          if (el.name === 'Accepts new patients') {
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (
+                moment(doc.telehealth_available).isBetween(
+                  moment(),
+                  moment().add(2, 'weeks'),
+                  undefined,
+                  '[]',
+                )
+              ) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
+          }
+
+          if (el.name === 'Schedules online') {
+            let arr: number[] = [];
+            doctors.filter(doc => {
+              if (moment(doc.telehealth_available).isSameOrAfter(moment())) {
+                arr.push(doc.id);
+              }
+            });
+            el.count = arr.length;
+            el.arr = arr;
+          }
+
+          return el;
         });
       }
 
-      // const arrCount:
-
-      // if (type === 'avalibility') {
-      //   let avalibilityArray: number[] | null = null;
-      //   avalibilityArray = doctors.map(el => {
-      //     if(name === 'Today'){
-      //       if(el.offline_available > Date.now()){
-      //         return el.id;
-      //       }
-      //     }
-
-      //   })
-      // }
       arr.length && setMultiplyList(arr);
     }
   });
@@ -164,6 +254,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
     }
     //Zustand setup
     let newArr: string[] = [];
+    let avalArr: Array<{title: string; people: number[]}> = [];
     if (!!multiplyList) {
       if (type === 'insurance') {
         multiplyList.forEach(el => el.checked && newArr.push(el.name));
@@ -176,8 +267,10 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
       }
 
       if (type === 'avalibility') {
-        multiplyList.forEach(el => el.checked && newArr.push(el.name));
-        setAvalibility(newArr);
+        multiplyList.forEach(
+          el => el.checked && avalArr.push({title: el.name, people: el.arr ?? []}),
+        );
+        setAvalibility(avalArr);
       }
     }
   });
@@ -219,61 +312,60 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   });
 
   return (
-    <div className={`select_btn ${modalType === type && 'checked'}`} {...rest}>
+    <div style={{position: 'relative'}}>
       <div
-        className="outer"
         onClick={() => {
           setModalType(modalType !== type ? type : 'none');
         }}
+        className={`select_btn ${modalType === type && 'checked'}`}
+        {...rest}
       >
-        {type === 'sort' && <SortIcon />}
-        <span style={{margin: type !== 'sort' ? '0 10px 0 0' : '0 10px'}}>
-          {type[0].toUpperCase() + type.slice(1)}
-          {searchParams.insurance.length !== 0 && type === 'insurance' && (
-            <>
-              {' '}
-              <span style={{fontWeight: 900}}>·</span>{' '}
-              <span style={{fontWeight: 500}}>{searchParams.insurance.length}</span>
-            </>
-          )}
-          {searchParams.avalibility.length !== 0 && type === 'avalibility' && (
-            <>
-              {' '}
-              <span style={{fontWeight: 900}}>·</span>{' '}
-              <span style={{fontWeight: 500}}>{searchParams.avalibility.length}</span>
-            </>
-          )}
-          {searchParams.speciality.length !== 0 && type === 'speciality' && (
-            <>
-              {' '}
-              <span style={{fontWeight: 900}}>·</span>{' '}
-              <span style={{fontWeight: 500}}>{searchParams.speciality.length}</span>
-            </>
-          )}
-        </span>
+        <div className="outer">
+          {type === 'sort' && <SortIcon />}
+          <span style={{margin: type !== 'sort' ? '0 10px 0 0' : '0 10px'}}>
+            {type[0].toUpperCase() + type.slice(1)}
+            {searchParams.insurance.length !== 0 && type === 'insurance' && (
+              <>
+                {' '}
+                <span style={{fontWeight: 900}}>·</span>{' '}
+                <span style={{fontWeight: 500}}>{searchParams.insurance.length}</span>
+              </>
+            )}
+            {searchParams.avalibility.length !== 0 && type === 'avalibility' && (
+              <>
+                {' '}
+                <span style={{fontWeight: 900}}>·</span>{' '}
+                <span style={{fontWeight: 500}}>{searchParams.avalibility.length}</span>
+              </>
+            )}
+            {searchParams.speciality.length !== 0 && type === 'speciality' && (
+              <>
+                {' '}
+                <span style={{fontWeight: 900}}>·</span>{' '}
+                <span style={{fontWeight: 500}}>{searchParams.speciality.length}</span>
+              </>
+            )}
+          </span>
 
-        {searchParams.speciality.length !== 0 && type === 'speciality' ? (
-          <div style={{display: 'inline-flex'}} onClick={resetSpeciality}>
-            <CrossIcon />
-          </div>
-        ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
-          <div style={{display: 'inline-flex'}} onClick={resetAvalibility}>
-            <CrossIcon />
-          </div>
-        ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
-          <div style={{display: 'inline-flex'}} onClick={resetInsurance}>
-            <CrossIcon />
-          </div>
-        ) : (
-          <ArrowDownIcon />
-        )}
+          {searchParams.speciality.length !== 0 && type === 'speciality' ? (
+            <div style={{display: 'inline-flex'}} onClick={resetSpeciality}>
+              <CrossIcon />
+            </div>
+          ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
+            <div style={{display: 'inline-flex'}} onClick={resetAvalibility}>
+              <CrossIcon />
+            </div>
+          ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
+            <div style={{display: 'inline-flex'}} onClick={resetInsurance}>
+              <CrossIcon />
+            </div>
+          ) : (
+            <ArrowDownIcon />
+          )}
+        </div>
       </div>
-
       <div
         className="dropdown_content"
-        onBlur={() => {
-          setModalType('none');
-        }}
         style={{
           minHeight: type === 'speciality' || type === 'insurance' ? '500px' : undefined,
           minWidth:

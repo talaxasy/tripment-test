@@ -6,6 +6,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "moment": "^2.29.1",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",

@@ -8,9 +8,14 @@ interface CheckboxGroupProps {
   setChecked: (revertChecked: boolean, idx: string) => void;
 }
 
-const CheckboxGroup: React.FC<CheckboxGroupProps> = ({array, searchTerm = '', setChecked}) => {
+const CheckboxGroup: React.FC<CheckboxGroupProps> = ({
+  array,
+  searchTerm = '',
+  setChecked,
+  type,
+}) => {
   return (
-    <div className="checkbox_group">
+    <div className={`checkbox_group ${type === 'avalibility' ? 'overflow_fix' : ''}`}>
       {array?.length
         ? array
             .filter(el => {

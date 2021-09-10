@@ -25,26 +25,52 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
     //Speciality
     let specialityArr: number[] = [];
     doctors?.forEach(doc => {
-      let flag = false;
-      searchParams.speciality.forEach(spec => {
-        if (spec === doc.speciality) {
-          flag = true;
+      if (searchParams.speciality.length && searchParams.insurance.length) {
+        for (let i = 0; i < searchParams.speciality.length; i++) {
+          for (let j = 0; j < searchParams.insurance.length; j++) {
+            if (
+              doc.speciality === searchParams.speciality[i] &&
+              doc.insurances === searchParams.insurance[j]
+            ) {
+              specialityArr.push(doc.id);
+            }
+          }
         }
-      });
-      flag && specialityArr.push(doc.id);
+      }
+
+      if (searchParams.speciality.length && !searchParams.insurance.length) {
+        searchParams.speciality.forEach(el => {
+          if (doc.speciality === el) {
+            specialityArr.push(doc.id);
+          }
+        });
+      }
+
+      if (!searchParams.speciality.length && searchParams.insurance.length) {
+        searchParams.insurance.forEach(el => {
+          if (doc.insurances === el) {
+            specialityArr.push(doc.id);
+          }
+        });
+      }
     });
 
-    //Insurance
-    let insuranceArr: number[] = [];
-    doctors?.forEach(doc => {
-      let flag = false;
-      searchParams.insurance.forEach(ins => {
-        if (ins === doc.insurances) {
-          flag = true;
-        }
-      });
-      flag && insuranceArr.push(doc.id);
-    });
+    console.log(
+      'Speciality',
+      specialityArr.map(key => doctors?.filter(el => el.id === key && el)),
+    );
+
+    // //Insurance
+    // let insuranceArr: number[] = [];
+    // doctors?.forEach(doc => {
+    //   let flag = false;
+    //   searchParams.insurance.forEach(ins => {
+    //     if (ins === doc.insurances) {
+    //       flag = true;
+    //     }
+    //   });
+    //   flag && insuranceArr.push(doc.id);
+    // });
 
     //Avalibility
     let avalibilityArr: number[] = [];
@@ -74,11 +100,20 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
 
     let clearedArr: Array<number[]> = [];
     if (avalibilityArr.length) clearedArr.push(avalibilityArr);
-    if (insuranceArr.length) clearedArr.push(insuranceArr);
     if (specialityArr.length) clearedArr.push(specialityArr);
     console.log('intersection', lodash.intersection(...clearedArr));
 
-    let mergedArr = [...new Set([...specialityArr, ...insuranceArr, ...avalibilityArr])];
+    let mergedArr = lodash.intersection(...clearedArr);
+
+    if (
+      !mergedArr.length &&
+      (searchParams.avalibility.length ||
+        searchParams.insurance.length ||
+        searchParams.speciality.length)
+    ) {
+      setList([<div className="nothing_found">Nothing found</div>]);
+      return;
+    }
 
     setList(
       searchParams.avalibility.length ||

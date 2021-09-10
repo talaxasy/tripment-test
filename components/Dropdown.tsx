@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {useStore, MockType, FilterTypes} from '../lib/store';
 import {ArrowDownIcon, CrossIcon, HeartIcon, SearchIcon, SortIcon} from '../svg';
 import Checkbox from './Checkbox';
@@ -21,9 +21,10 @@ type DropdownProps = React.DetailedHTMLProps<
   HTMLDivElement
 > & {
   type: 'avalibility' | 'speciality' | 'insurance' | 'sort';
+  regen: boolean;
 };
 
-const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
+const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
   const {
     mock,
     setSpeciality,
@@ -40,9 +41,11 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   } = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
   const [multiplyList, setMultiplyList] = useState<Array<CheckBoxState> | null>(null);
-  const [sortRadio, setSortRadio] = useState('Next available');
+  const [sortRadio, setSortRadio] = useState(searchParams.sort);
   const [searchTerm, setSearchTerm] = useState('');
-  const [provideOthPayOpt, setProvideOthPayOpt] = useState(false);
+  const [provideOthPayOpt, setProvideOthPayOpt] = useState(
+    searchParams.providesOtherPaymentsOptions,
+  );
 
   const [avalibility1Part, setAvalibility1Part] = useState<Array<CheckBoxState> | null>([
     {name: 'Today', count: 0, checked: false},
@@ -69,6 +72,11 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
   useEffect(() => {
     getMockNameCount(type);
   }, [doctors]);
+
+  useEffect(() => {
+    resetFilter();
+    // setModalType('none');
+  }, [regen]);
 
   // useEffect(() => {
   //   console.log('searchParams', searchParams);
@@ -273,6 +281,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
         setAvalibility(avalArr);
       }
     }
+    setModalType('none');
   });
 
   const resetFilter = lodash.memoize(() => {
@@ -308,6 +317,11 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
 
     if (type === 'insurance') {
       resetInsurance();
+    }
+
+    if (type === 'sort') {
+      setSortRadio('Next available');
+      setSort('Next available');
     }
   });
 
@@ -348,15 +362,58 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
           </span>
 
           {searchParams.speciality.length !== 0 && type === 'speciality' ? (
-            <div style={{display: 'inline-flex'}} onClick={resetSpeciality}>
+            <div
+              style={{display: 'inline-flex'}}
+              onClick={() => {
+                if (!!multiplyList) {
+                  setMultiplyList(
+                    multiplyList.map(el => {
+                      el.checked = false;
+                      return el;
+                    }),
+                  );
+                }
+                resetSpeciality();
+              }}
+            >
               <CrossIcon />
             </div>
           ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
-            <div style={{display: 'inline-flex'}} onClick={resetAvalibility}>
+            <div
+              style={{display: 'inline-flex'}}
+              onClick={() => {
+                setAvalibility1Part(
+                  avalibility1Part!.map(el => {
+                    el.checked = false;
+                    return el;
+                  }),
+                );
+                setAvalibility2Part(
+                  avalibility2Part!.map(el => {
+                    el.checked = false;
+                    return el;
+                  }),
+                );
+                resetAvalibility();
+              }}
+            >
               <CrossIcon />
             </div>
           ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
-            <div style={{display: 'inline-flex'}} onClick={resetInsurance}>
+            <div
+              style={{display: 'inline-flex'}}
+              onClick={() => {
+                if (!!multiplyList) {
+                  setMultiplyList(
+                    multiplyList.map(el => {
+                      el.checked = false;
+                      return el;
+                    }),
+                  );
+                }
+                resetInsurance();
+              }}
+            >
               <CrossIcon />
             </div>
           ) : (
@@ -467,7 +524,12 @@ const Dropdown: React.FC<DropdownProps> = ({type, ...rest}) => {
             >
               Reset
             </span>
-            <button type="button" className="apply_btn" onClick={e => submitHandler(e)}>
+            <button
+              tabIndex={1}
+              type="button"
+              className="apply_btn"
+              onClick={e => submitHandler(e)}
+            >
               Apply
             </button>
           </div>

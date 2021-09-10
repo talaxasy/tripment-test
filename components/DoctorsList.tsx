@@ -1,3 +1,4 @@
+import lodash from 'lodash';
 import moment from 'moment';
 import React, {useEffect, useState} from 'react';
 import {MockType, useStore} from '../lib/store';
@@ -71,12 +72,22 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       }
     });
 
+    let clearedArr: Array<number[]> = [];
+    if (avalibilityArr.length) clearedArr.push(avalibilityArr);
+    if (insuranceArr.length) clearedArr.push(insuranceArr);
+    if (specialityArr.length) clearedArr.push(specialityArr);
+    console.log('intersection', lodash.intersection(...clearedArr));
+
     let mergedArr = [...new Set([...specialityArr, ...insuranceArr, ...avalibilityArr])];
 
     setList(
-      doctors?.map(doc => {
-        return mergedArr.map(id => id === doc.id && <DoctorItem data={doc} key={doc.id} />);
-      }),
+      searchParams.avalibility.length ||
+        searchParams.insurance.length ||
+        searchParams.speciality.length
+        ? doctors?.map(doc => {
+            return mergedArr.map(id => id === doc.id && <DoctorItem data={doc} key={doc.id} />);
+          })
+        : doctors?.map(doc => <DoctorItem data={doc} key={doc.id} />),
     );
   };
 

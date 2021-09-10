@@ -7,7 +7,16 @@ import DoctorItem from './DoctorItem';
 interface DoctorsListProps {}
 
 const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
-  const {mock, searchParams} = useStore();
+  const {mock, searchParams} = useStore() as {
+    mock: MockType[];
+    searchParams: {
+      avalibility: Array<{title: string; people: number[]}>;
+      insurance: string[];
+      speciality: string[];
+      sort: string;
+      providesOtherPaymentsOptions: boolean;
+    };
+  };
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
   const [list, setList] = useState<null | undefined | any[]>(null);
 

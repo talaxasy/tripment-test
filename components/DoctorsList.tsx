@@ -126,9 +126,20 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
     );
   };
 
+  const sortByNextAvailible = (arr: MockType[]) => {
+    return lodash.sortBy(arr, el => el.price);
+
+    //end
+    // setDoctors(some)
+  };
+
   useEffect(() => {
-    setDoctors(mock);
+    setDoctors(lodash.sortBy(mock, el => el.name).reverse());
   }, []);
+
+  // useEffect(() => {
+  //   doctors && sortByNextAvailible(doctors);
+  // }, [list]);
 
   useEffect(() => {
     setList(mock.map(el => <DoctorItem data={el} key={el.id} />));

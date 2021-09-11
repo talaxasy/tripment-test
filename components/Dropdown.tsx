@@ -38,6 +38,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
     setProvidesOtherPayOptions,
     setModalType,
     modalType,
+    resetAllFilters,
   } = useStore();
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
   const [multiplyList, setMultiplyList] = useState<Array<CheckBoxState> | null>(null);
@@ -74,8 +75,8 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
   }, [doctors]);
 
   useEffect(() => {
+    resetAllFilters();
     resetFilter();
-    // setModalType('none');
   }, [regen]);
 
   // useEffect(() => {
@@ -316,6 +317,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
     }
 
     if (type === 'insurance') {
+      setProvideOthPayOpt(false);
       resetInsurance();
     }
 
@@ -364,7 +366,8 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
           {searchParams.speciality.length !== 0 && type === 'speciality' ? (
             <div
               style={{display: 'inline-flex'}}
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 if (!!multiplyList) {
                   setMultiplyList(
                     multiplyList.map(el => {
@@ -381,7 +384,8 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
           ) : searchParams.avalibility.length !== 0 && type === 'avalibility' ? (
             <div
               style={{display: 'inline-flex'}}
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 setAvalibility1Part(
                   avalibility1Part!.map(el => {
                     el.checked = false;
@@ -402,7 +406,8 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
           ) : searchParams.insurance.length !== 0 && type === 'insurance' ? (
             <div
               style={{display: 'inline-flex'}}
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 if (!!multiplyList) {
                   setMultiplyList(
                     multiplyList.map(el => {
@@ -488,7 +493,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
 
           {type === 'sort' && (
             <RadioGroup
-              array={['Next available', 'Most Experienced']}
+              array={['Next available', 'Most Experienced', 'Most Expensive']}
               setChecked={name => {
                 setSortRadio(name);
                 setSort(name);

@@ -115,37 +115,74 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       return;
     }
 
-    setList(
+    if (
       searchParams.avalibility.length ||
-        searchParams.insurance.length ||
-        searchParams.speciality.length
-        ? doctors?.map(doc => {
-            return mergedArr.map(id => id === doc.id && <DoctorItem data={doc} key={doc.id} />);
-          })
-        : doctors?.map(doc => <DoctorItem data={doc} key={doc.id} />),
-    );
+      searchParams.insurance.length ||
+      searchParams.speciality.length
+    ) {
+      const filteredDoctors = doctors?.filter(doc => mergedArr.find(id => id === doc.id));
+      if (searchParams.sort === 'Next available') {
+        setTimeout(
+          () =>
+            setList(
+              lodash
+                .sortBy(filteredDoctors, el => moment(el.offline_available))
+                .reverse()
+                .map(doc => <DoctorItem data={doc} key={doc.id} />),
+            ),
+          1,
+        );
+      }
+
+      if (searchParams.sort === 'Most Experienced') {
+        setTimeout(() =>
+          setList(
+            lodash
+              .sortBy(filteredDoctors, el => el.experience)
+              .reverse()
+              .map(doc => <DoctorItem data={doc} key={doc.id} />),
+          ),
+        );
+      }
+
+      if (searchParams.sort === 'Most Expensive') {
+        setTimeout(() =>
+          setList(
+            lodash
+              .sortBy(filteredDoctors, el => el.price)
+              .reverse()
+              .map(doc => <DoctorItem data={doc} key={doc.id} />),
+          ),
+        );
+      }
+      // filteredDoctors&& setDoctors(filteredDoctors);
+      // setList(filteredDoctors?.map(doc => <DoctorItem data={doc} key={doc.id} />));
+    } else setList(doctors?.map(doc => <DoctorItem data={doc} key={doc.id} />));
   };
 
-  const sortByNextAvailible = (arr: MockType[]) => {
-    return lodash.sortBy(arr, el => el.price);
+  // const sortByNextAvailible = (arr: MockType[]) => {
+  //   return lodash.sortBy(arr, el => el.price);
 
-    //end
-    // setDoctors(some)
-  };
+  //   //end
+  //   // setDoctors(some)
+  // };
 
   useEffect(() => {
-    setDoctors(lodash.sortBy(mock, el => el.name).reverse());
+    setDoctors(lodash.sortBy(mock, el => el.experience).reverse());
   }, []);
 
-  // useEffect(() => {
-  //   doctors && sortByNextAvailible(doctors);
-  // }, [list]);
-
   useEffect(() => {
-    setList(mock.map(el => <DoctorItem data={el} key={el.id} />));
+    setList(doctors?.map(el => <DoctorItem data={el} key={el.id} />));
   }, [doctors]);
 
   useEffect(() => {
+    if (searchParams.sort === 'Next available' && doctors?.length)
+      setDoctors(lodash.sortBy(doctors, el => moment(el.offline_available)).reverse());
+    if (searchParams.sort === 'Most Experienced' && doctors?.length)
+      setDoctors(lodash.sortBy(doctors, el => el.experience).reverse());
+    if (searchParams.sort === 'Most Expensive' && doctors?.length)
+      setDoctors(lodash.sortBy(doctors, el => el.price).reverse());
+
     filterSearch();
   }, [searchParams]);
 

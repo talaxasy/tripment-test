@@ -494,7 +494,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
                 checked={provideOthPayOpt}
                 onChange={revertChecked => {
                   setProvideOthPayOpt(revertChecked);
-                  setAllInsurance();
+                  // setAllInsurance(); // Disabled for a moment
                 }}
               />
               <hr style={{opacity: 0.2, margin: '16px 0'}} />

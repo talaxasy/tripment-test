@@ -6,7 +6,7 @@ import mock from '../mock.json';
 const zustandContext = createContext();
 export const Provider = zustandContext.Provider;
 //set any to abandon conflicts of types, instead of UseContextStore<FunctionsTypes>
-export const useStore: any = zustandContext.useStore;
+export const useStore: UseContextStore<FunctionsTypes> = zustandContext.useStore;
 
 let store: import('zustand/index').UseStore<FunctionsTypes> | null = null;
 

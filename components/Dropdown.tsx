@@ -257,7 +257,6 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
 
   const submitHandler = lodash.memoize((e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
-    console.log(searchParams);
     if (type === 'sort') {
       setSort(sortRadio);
     }
@@ -276,6 +275,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
       }
 
       if (type === 'avalibility') {
+        console.log('multiplyList', multiplyList);
         multiplyList.forEach(
           el => el.checked && avalArr.push({title: el.name, people: el.arr ?? []}),
         );
@@ -368,14 +368,13 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
               style={{display: 'inline-flex'}}
               onClick={e => {
                 e.stopPropagation();
-                if (!!multiplyList) {
+                if (multiplyList)
                   setMultiplyList(
                     multiplyList.map(el => {
                       el.checked = false;
                       return el;
                     }),
                   );
-                }
                 resetSpeciality();
               }}
             >
@@ -398,6 +397,13 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
                     return el;
                   }),
                 );
+                if (multiplyList)
+                  setMultiplyList(
+                    multiplyList.map(el => {
+                      el.checked = false;
+                      return el;
+                    }),
+                  );
                 resetAvalibility();
               }}
             >

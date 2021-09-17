@@ -23,7 +23,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
 
   const filterSearch = () => {
     //Speciality
-    let specialityArr: number[] = [];
+    let SPECIALITY_AND_INSURANCE: number[] = [];
     doctors?.forEach(doc => {
       if (searchParams.speciality.length && searchParams.insurance.length) {
         for (let i = 0; i < searchParams.speciality.length; i++) {
@@ -32,7 +32,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
               doc.speciality === searchParams.speciality[i] &&
               doc.insurances === searchParams.insurance[j]
             ) {
-              specialityArr.push(doc.id);
+              SPECIALITY_AND_INSURANCE.push(doc.id);
             }
           }
         }
@@ -41,7 +41,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       if (searchParams.speciality.length && !searchParams.insurance.length) {
         searchParams.speciality.forEach(el => {
           if (doc.speciality === el) {
-            specialityArr.push(doc.id);
+            SPECIALITY_AND_INSURANCE.push(doc.id);
           }
         });
       }
@@ -49,69 +49,170 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       if (!searchParams.speciality.length && searchParams.insurance.length) {
         searchParams.insurance.forEach(el => {
           if (doc.insurances === el) {
-            specialityArr.push(doc.id);
+            SPECIALITY_AND_INSURANCE.push(doc.id);
           }
         });
       }
     });
 
-    console.log(
-      'Speciality',
-      specialityArr.map(key => doctors?.filter(el => el.id === key && el)),
-    );
-
-    // //Insurance
-    // let insuranceArr: number[] = [];
-    // doctors?.forEach(doc => {
-    //   let flag = false;
-    //   searchParams.insurance.forEach(ins => {
-    //     if (ins === doc.insurances) {
-    //       flag = true;
-    //     }
-    //   });
-    //   flag && insuranceArr.push(doc.id);
-    // });
+    SPECIALITY_AND_INSURANCE = lodash.sortedUniq(SPECIALITY_AND_INSURANCE);
 
     //Avalibility
-    let avalibilityArr: number[] = [];
-    searchParams.avalibility.forEach(aval => {
-      if (aval.title === 'Today') {
-        avalibilityArr.push(...aval.people);
-      }
+    let FINAL_STEP: number[] = [];
 
-      if (aval.title === 'Next 3 days') {
-        avalibilityArr.push(...aval.people);
-      }
+    let SPECIALITY_AND_INSURANCE_DOCS = doctors?.filter(doc =>
+      SPECIALITY_AND_INSURANCE.find(id => id === doc.id),
+    );
 
-      if (aval.title === 'Next 2 weeks') {
-        avalibilityArr.push(...aval.people);
-      }
+    console.log('SPECIALITY_AND_INSURANCE_DOCS', SPECIALITY_AND_INSURANCE_DOCS);
 
-      if (aval.title === 'Telehealth') {
-        avalibilityArr.push(...aval.people);
-      }
-      if (aval.title === 'Accepts new patients') {
-        avalibilityArr.push(...aval.people);
-      }
-      if (aval.title === 'Schedules online') {
-        avalibilityArr.push(...aval.people);
-      }
+    let avalibilityArrs: Record<
+      'today' | 'nxt3d' | 'nxt2w' | 'tele' | 'accnew' | 'online',
+      number[]
+    > = {
+      today: [],
+      nxt3d: [],
+      nxt2w: [],
+      tele: [],
+      accnew: [],
+      online: [],
+    };
+
+    SPECIALITY_AND_INSURANCE_DOCS?.forEach(doc => {
+      searchParams.avalibility.forEach(aval => {
+        if (aval.title === 'Today') {
+          if (
+            moment(doc.telehealth_available).isSameOrAfter() ||
+            moment(doc.offline_available).isSameOrAfter(moment())
+          ) {
+            avalibilityArrs = {...avalibilityArrs, today: [...avalibilityArrs.today, doc.id]};
+            FINAL_STEP.push(doc.id);
+            console.log('today');
+          }
+        }
+
+        if (aval.title === 'Next 3 days') {
+          if (
+            moment(doc.telehealth_available).isBetween(
+              moment(),
+              moment().add(3, 'days'),
+              undefined,
+              '[]',
+            ) ||
+            moment(doc.offline_available).isBetween(
+              moment(),
+              moment().add(3, 'days'),
+              undefined,
+              '[]',
+            )
+          ) {
+            avalibilityArrs = {...avalibilityArrs, nxt3d: [...avalibilityArrs.nxt3d, doc.id]};
+            FINAL_STEP.push(doc.id);
+          }
+        }
+
+        if (aval.title === 'Next 2 weeks') {
+          if (
+            moment(doc.telehealth_available).isBetween(
+              moment(),
+              moment().add(2, 'weeks'),
+              undefined,
+              '[]',
+            ) ||
+            moment(doc.offline_available).isBetween(
+              moment(),
+              moment().add(2, 'weeks'),
+              undefined,
+              '[]',
+            )
+          ) {
+            avalibilityArrs = {...avalibilityArrs, nxt2w: [...avalibilityArrs.nxt2w, doc.id]};
+            FINAL_STEP.push(doc.id);
+          }
+        }
+
+        if (aval.title === 'Telehealth') {
+          if (doc.telehealth) {
+            avalibilityArrs = {...avalibilityArrs, tele: [...avalibilityArrs.tele, doc.id]};
+            FINAL_STEP.push(doc.id);
+            console.log('telehealth');
+          }
+        }
+        if (aval.title === 'Accepts new patients') {
+          if (doc.acceptNew) {
+            avalibilityArrs = {...avalibilityArrs, accnew: [...avalibilityArrs.accnew, doc.id]};
+            FINAL_STEP.push(doc.id);
+          }
+        }
+        if (aval.title === 'Schedules online') {
+          if (moment(doc.telehealth_available).isSameOrAfter(moment())) {
+            avalibilityArrs = {...avalibilityArrs, online: [...avalibilityArrs.online, doc.id]};
+            FINAL_STEP.push(doc.id);
+          }
+        }
+      });
     });
 
-    let clearedArr: Array<number[]> = [];
-    if (avalibilityArr.length) clearedArr.push(avalibilityArr);
-    if (specialityArr.length) clearedArr.push(specialityArr);
-    console.log('intersection', lodash.intersection(...clearedArr));
+    console.log('avalibilityArrs', !avalibilityArrs.today.length);
 
-    let mergedArr = lodash.intersection(...clearedArr);
+    console.log('FINAL_STEP before', FINAL_STEP);
+
+    let FINAL_STEP_DOCTORS: MockType[] | undefined = [];
 
     if (
-      !mergedArr.length &&
+      !avalibilityArrs.today.length &&
+      !avalibilityArrs.tele.length &&
+      !avalibilityArrs.online.length &&
+      !avalibilityArrs.accnew.length &&
+      !avalibilityArrs.nxt2w.length &&
+      !avalibilityArrs.nxt3d.length &&
+      searchParams.avalibility.length
+    ) {
+      setList([
+        <div key={1} className="nothing_found">
+          Nothing found
+        </div>,
+      ]);
+      return;
+    } else if (!searchParams.avalibility.length) {
+      FINAL_STEP_DOCTORS = SPECIALITY_AND_INSURANCE_DOCS;
+    } else if (searchParams.avalibility.length && !SPECIALITY_AND_INSURANCE.length) {
+      console.log('smt');
+    } else {
+      let clearedArr: Array<number[]> = [];
+      if (avalibilityArrs.today.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.today));
+      if (avalibilityArrs.accnew.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.accnew));
+      if (avalibilityArrs.nxt2w.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.nxt2w));
+      if (avalibilityArrs.nxt3d.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.nxt3d));
+      if (avalibilityArrs.online.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.online));
+      if (avalibilityArrs.tele.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.tele));
+
+      FINAL_STEP = lodash.intersection(...clearedArr);
+      FINAL_STEP_DOCTORS = doctors?.filter(doc => FINAL_STEP.find(id => id === doc.id));
+    }
+
+    console.log('FINAL_STEP after', FINAL_STEP);
+
+    console.log('FINAL_STEP_DOCTORS', FINAL_STEP_DOCTORS);
+
+    // let clearedArr: Array<number[]> = [];
+    // if (avalibilityArr.length) clearedArr.push(avalibilityArr);
+    // if (specialityArr.length) clearedArr.push(specialityArr);
+    // console.log('intersection', lodash.intersection(...clearedArr));
+
+    // let mergedArr = lodash.intersection(...clearedArr);
+
+    if (
+      !FINAL_STEP_DOCTORS?.length &&
       (searchParams.avalibility.length ||
         searchParams.insurance.length ||
         searchParams.speciality.length)
     ) {
-      setList([<div className="nothing_found">Nothing found</div>]);
+      setList([
+        <div key={1} className="nothing_found">
+          Nothing found
+        </div>,
+      ]);
       return;
     }
 
@@ -120,59 +221,46 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       searchParams.insurance.length ||
       searchParams.speciality.length
     ) {
-      const filteredDoctors = doctors?.filter(doc => mergedArr.find(id => id === doc.id));
+      console.log('searchParams.sort', searchParams.sort);
+
       if (searchParams.sort === 'Next available') {
-        setTimeout(
-          () =>
-            setList(
-              lodash
-                .sortBy(filteredDoctors, el => moment(el.offline_available))
-                .reverse()
-                .map(doc => <DoctorItem data={doc} key={doc.id} />),
-            ),
-          1,
+        setList(
+          lodash
+            .sortBy(FINAL_STEP_DOCTORS, el => moment(el.offline_available))
+            .reverse()
+            .map(doc => <DoctorItem data={doc} key={doc.id} />),
         );
+        console.log('FINAL_STEP_DOCTORS 3', FINAL_STEP_DOCTORS);
       }
 
       if (searchParams.sort === 'Most Experienced') {
-        setTimeout(() =>
-          setList(
-            lodash
-              .sortBy(filteredDoctors, el => el.experience)
-              .reverse()
-              .map(doc => <DoctorItem data={doc} key={doc.id} />),
-          ),
+        setList(
+          lodash
+            .sortBy(FINAL_STEP_DOCTORS, el => el.experience)
+            .reverse()
+            .map(doc => <DoctorItem data={doc} key={doc.id} />),
         );
       }
 
       if (searchParams.sort === 'Most Expensive') {
-        setTimeout(() =>
-          setList(
-            lodash
-              .sortBy(filteredDoctors, el => el.price)
-              .reverse()
-              .map(doc => <DoctorItem data={doc} key={doc.id} />),
-          ),
+        setList(
+          lodash
+            .sortBy(FINAL_STEP_DOCTORS, el => el.price)
+            .reverse()
+            .map(doc => <DoctorItem data={doc} key={doc.id} />),
         );
       }
-      // filteredDoctors&& setDoctors(filteredDoctors);
-      // setList(filteredDoctors?.map(doc => <DoctorItem data={doc} key={doc.id} />));
     } else setList(doctors?.map(doc => <DoctorItem data={doc} key={doc.id} />));
   };
-
-  // const sortByNextAvailible = (arr: MockType[]) => {
-  //   return lodash.sortBy(arr, el => el.price);
-
-  //   //end
-  //   // setDoctors(some)
-  // };
 
   useEffect(() => {
     setDoctors(lodash.sortBy(mock, el => el.experience).reverse());
   }, []);
 
   useEffect(() => {
+    console.log('Doctors while useEffect doctors: ', list);
     setList(doctors?.map(el => <DoctorItem data={el} key={el.id} />));
+    console.log('useEffect doctors');
   }, [doctors]);
 
   useEffect(() => {
@@ -183,7 +271,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
     if (searchParams.sort === 'Most Expensive' && doctors?.length)
       setDoctors(lodash.sortBy(doctors, el => el.price).reverse());
 
-    filterSearch();
+    setTimeout(filterSearch, 1);
   }, [searchParams]);
 
   return (
@@ -195,10 +283,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
           <p>The average price of a procedure in New York is $300</p>
         </div>
 
-        <div style={{marginTop: '30px'}}>
-          {list ? list : 'loading...'}
-          <pre></pre>
-        </div>
+        <div style={{marginTop: '30px'}}>{list ? list : 'loading...'}</div>
       </div>
     </>
   );

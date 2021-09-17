@@ -26,6 +26,10 @@ strong {
     font-weight: bold;
 }
 
+* div{
+    user-select: none;
+}
+
 *,
 *:before,
 *:after {
@@ -67,6 +71,7 @@ button {
     padding: 32px;
     border: 1px solid #eaeeee;
     border-radius: 5px;
+    min-height: calc(100vh + 10px);
 }
 
 .doctor_item {

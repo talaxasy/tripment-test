@@ -7,6 +7,8 @@ import DoctorItem from './DoctorItem';
 
 interface DoctorsListProps {}
 
+type avalType = Record<'today' | 'nxt3d' | 'nxt2w' | 'tele' | 'accnew' | 'online', number[]>;
+
 const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
   const {mock, searchParams} = useStore() as {
     mock: MockType[];
@@ -20,6 +22,69 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
   };
   const [doctors, setDoctors] = useState<MockType[] | null>(null);
   const [list, setList] = useState<null | undefined | any[]>(null);
+
+  const calculateAvalibility = (
+    doc: MockType,
+    aval: {
+      title: string;
+      people: number[];
+    },
+    avalArr: avalType,
+  ) => {
+    if (aval.title === 'Today') {
+      if (
+        moment(doc.telehealth_available).isSameOrAfter() ||
+        moment(doc.offline_available).isSameOrAfter(moment())
+      ) {
+        return {...avalArr, today: [...avalArr.today, doc.id]};
+      }
+    }
+
+    if (aval.title === 'Next 3 days') {
+      if (
+        moment(doc.telehealth_available).isBetween(
+          moment(),
+          moment().add(3, 'days'),
+          undefined,
+          '[]',
+        ) ||
+        moment(doc.offline_available).isBetween(moment(), moment().add(3, 'days'), undefined, '[]')
+      ) {
+        return {...avalArr, nxt3d: [...avalArr.nxt3d, doc.id]};
+      }
+    }
+
+    if (aval.title === 'Next 2 weeks') {
+      if (
+        moment(doc.telehealth_available).isBetween(
+          moment(),
+          moment().add(2, 'weeks'),
+          undefined,
+          '[]',
+        ) ||
+        moment(doc.offline_available).isBetween(moment(), moment().add(2, 'weeks'), undefined, '[]')
+      ) {
+        return {...avalArr, nxt2w: [...avalArr.nxt2w, doc.id]};
+      }
+    }
+
+    if (aval.title === 'Telehealth') {
+      if (doc.telehealth) {
+        return {...avalArr, tele: [...avalArr.tele, doc.id]};
+      }
+    }
+    if (aval.title === 'Accepts new patients') {
+      if (doc.acceptNew) {
+        return {...avalArr, accnew: [...avalArr.accnew, doc.id]};
+      }
+    }
+    if (aval.title === 'Schedules online') {
+      if (moment(doc.telehealth_available).isSameOrAfter(moment())) {
+        return {...avalArr, nxt2w: [...avalArr.nxt2w, doc.id]};
+      }
+    }
+    return {...avalArr};
+  };
 
   const filterSearch = () => {
     //Speciality
@@ -64,12 +129,9 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       SPECIALITY_AND_INSURANCE.find(id => id === doc.id),
     );
 
-    console.log('SPECIALITY_AND_INSURANCE_DOCS', SPECIALITY_AND_INSURANCE_DOCS);
+    // console.log('SPECIALITY_AND_INSURANCE_DOCS', SPECIALITY_AND_INSURANCE_DOCS);
 
-    let avalibilityArrs: Record<
-      'today' | 'nxt3d' | 'nxt2w' | 'tele' | 'accnew' | 'online',
-      number[]
-    > = {
+    let avalibilityArrs: avalType = {
       today: [],
       nxt3d: [],
       nxt2w: [],
@@ -78,84 +140,26 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       online: [],
     };
 
-    SPECIALITY_AND_INSURANCE_DOCS?.forEach(doc => {
-      searchParams.avalibility.forEach(aval => {
-        if (aval.title === 'Today') {
-          if (
-            moment(doc.telehealth_available).isSameOrAfter() ||
-            moment(doc.offline_available).isSameOrAfter(moment())
-          ) {
-            avalibilityArrs = {...avalibilityArrs, today: [...avalibilityArrs.today, doc.id]};
-            FINAL_STEP.push(doc.id);
-            console.log('today');
-          }
-        }
-
-        if (aval.title === 'Next 3 days') {
-          if (
-            moment(doc.telehealth_available).isBetween(
-              moment(),
-              moment().add(3, 'days'),
-              undefined,
-              '[]',
-            ) ||
-            moment(doc.offline_available).isBetween(
-              moment(),
-              moment().add(3, 'days'),
-              undefined,
-              '[]',
-            )
-          ) {
-            avalibilityArrs = {...avalibilityArrs, nxt3d: [...avalibilityArrs.nxt3d, doc.id]};
-            FINAL_STEP.push(doc.id);
-          }
-        }
-
-        if (aval.title === 'Next 2 weeks') {
-          if (
-            moment(doc.telehealth_available).isBetween(
-              moment(),
-              moment().add(2, 'weeks'),
-              undefined,
-              '[]',
-            ) ||
-            moment(doc.offline_available).isBetween(
-              moment(),
-              moment().add(2, 'weeks'),
-              undefined,
-              '[]',
-            )
-          ) {
-            avalibilityArrs = {...avalibilityArrs, nxt2w: [...avalibilityArrs.nxt2w, doc.id]};
-            FINAL_STEP.push(doc.id);
-          }
-        }
-
-        if (aval.title === 'Telehealth') {
-          if (doc.telehealth) {
-            avalibilityArrs = {...avalibilityArrs, tele: [...avalibilityArrs.tele, doc.id]};
-            FINAL_STEP.push(doc.id);
-            console.log('telehealth');
-          }
-        }
-        if (aval.title === 'Accepts new patients') {
-          if (doc.acceptNew) {
-            avalibilityArrs = {...avalibilityArrs, accnew: [...avalibilityArrs.accnew, doc.id]};
-            FINAL_STEP.push(doc.id);
-          }
-        }
-        if (aval.title === 'Schedules online') {
-          if (moment(doc.telehealth_available).isSameOrAfter(moment())) {
-            avalibilityArrs = {...avalibilityArrs, online: [...avalibilityArrs.online, doc.id]};
-            FINAL_STEP.push(doc.id);
-          }
-        }
+    if (searchParams.avalibility.length && !SPECIALITY_AND_INSURANCE.length) {
+      console.log('A AM HEAA 1');
+      doctors?.forEach(doc => {
+        searchParams.avalibility.forEach(aval => {
+          avalibilityArrs = calculateAvalibility(doc, aval, avalibilityArrs);
+        });
       });
-    });
 
-    console.log('avalibilityArrs', !avalibilityArrs.today.length);
+      console.log(avalibilityArrs);
+    } else {
+      SPECIALITY_AND_INSURANCE_DOCS?.forEach(doc => {
+        searchParams.avalibility.forEach(aval => {
+          avalibilityArrs = calculateAvalibility(doc, aval, avalibilityArrs);
+        });
+      });
+    }
 
-    console.log('FINAL_STEP before', FINAL_STEP);
+    // console.log('avalibilityArrs', !avalibilityArrs.today.length);
+
+    // console.log('FINAL_STEP before', FINAL_STEP);
 
     let FINAL_STEP_DOCTORS: MockType[] | undefined = [];
 
@@ -176,8 +180,6 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       return;
     } else if (!searchParams.avalibility.length) {
       FINAL_STEP_DOCTORS = SPECIALITY_AND_INSURANCE_DOCS;
-    } else if (searchParams.avalibility.length && !SPECIALITY_AND_INSURANCE.length) {
-      console.log('smt');
     } else {
       let clearedArr: Array<number[]> = [];
       if (avalibilityArrs.today.length) clearedArr.push(lodash.sortedUniq(avalibilityArrs.today));
@@ -191,7 +193,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       FINAL_STEP_DOCTORS = doctors?.filter(doc => FINAL_STEP.find(id => id === doc.id));
     }
 
-    console.log('FINAL_STEP after', FINAL_STEP);
+    // console.log('FINAL_STEP after', FINAL_STEP);
 
     console.log('FINAL_STEP_DOCTORS', FINAL_STEP_DOCTORS);
 
@@ -221,7 +223,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
       searchParams.insurance.length ||
       searchParams.speciality.length
     ) {
-      console.log('searchParams.sort', searchParams.sort);
+      // console.log('searchParams.sort', searchParams.sort);
 
       if (searchParams.sort === 'Next available') {
         setList(
@@ -230,7 +232,7 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
             .reverse()
             .map(doc => <DoctorItem data={doc} key={doc.id} />),
         );
-        console.log('FINAL_STEP_DOCTORS 3', FINAL_STEP_DOCTORS);
+        // console.log('FINAL_STEP_DOCTORS 3', FINAL_STEP_DOCTORS);
       }
 
       if (searchParams.sort === 'Most Experienced') {
@@ -258,20 +260,28 @@ const DoctorsList: React.FC<DoctorsListProps> = ({}) => {
   }, []);
 
   useEffect(() => {
-    console.log('Doctors while useEffect doctors: ', list);
+    // console.log('Doctors while useEffect doctors: ', list);
     setList(doctors?.map(el => <DoctorItem data={el} key={el.id} />));
-    console.log('useEffect doctors');
+    // console.log('useEffect doctors');
   }, [doctors]);
 
   useEffect(() => {
-    if (searchParams.sort === 'Next available' && doctors?.length)
-      setDoctors(lodash.sortBy(doctors, el => moment(el.offline_available)).reverse());
-    if (searchParams.sort === 'Most Experienced' && doctors?.length)
-      setDoctors(lodash.sortBy(doctors, el => el.experience).reverse());
-    if (searchParams.sort === 'Most Expensive' && doctors?.length)
-      setDoctors(lodash.sortBy(doctors, el => el.price).reverse());
+    if (
+      !searchParams.avalibility.length &&
+      !searchParams.insurance.length &&
+      !searchParams.speciality.length
+    ) {
+      if (searchParams.sort === 'Next available' && doctors?.length)
+        setDoctors(lodash.sortBy(doctors, el => moment(el.offline_available)).reverse());
+      if (searchParams.sort === 'Most Experienced' && doctors?.length)
+        setDoctors(lodash.sortBy(doctors, el => el.experience).reverse());
+      if (searchParams.sort === 'Most Expensive' && doctors?.length)
+        setDoctors(lodash.sortBy(doctors, el => el.price).reverse());
+    }
+  }, [searchParams.sort]);
 
-    setTimeout(filterSearch, 1);
+  useEffect(() => {
+    filterSearch();
   }, [searchParams]);
 
   return (

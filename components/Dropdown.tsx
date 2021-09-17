@@ -79,6 +79,30 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
     resetFilter();
   }, [regen]);
 
+  const setAllInsurance = () => {
+    if (!provideOthPayOpt) {
+      if (multiplyList) {
+        setInsurance(multiplyList.map(el => el.name));
+        setMultiplyList(
+          multiplyList.map(el => {
+            el.checked = true;
+            return el;
+          }),
+        );
+      }
+    } else {
+      if (multiplyList) {
+        setInsurance([]);
+        setMultiplyList(
+          multiplyList.map(el => {
+            el.checked = false;
+            return el;
+          }),
+        );
+      }
+    }
+  };
+
   // useEffect(() => {
   //   console.log('searchParams', searchParams);
   // });
@@ -275,7 +299,7 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
       }
 
       if (type === 'avalibility') {
-        console.log('multiplyList', multiplyList);
+        // console.log('multiplyList', multiplyList);
         multiplyList.forEach(
           el => el.checked && avalArr.push({title: el.name, people: el.arr ?? []}),
         );
@@ -468,7 +492,10 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
               <SwitchButton
                 name="Provides other than insurance payment options"
                 checked={provideOthPayOpt}
-                onChange={revertChecked => setProvideOthPayOpt(revertChecked)}
+                onChange={revertChecked => {
+                  setProvideOthPayOpt(revertChecked);
+                  setAllInsurance();
+                }}
               />
               <hr style={{opacity: 0.2, margin: '16px 0'}} />
             </>

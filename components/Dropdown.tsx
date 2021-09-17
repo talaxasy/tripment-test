@@ -1,13 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {useStore, MockType, FilterTypes} from '../lib/store';
-import {ArrowDownIcon, CrossIcon, HeartIcon, SearchIcon, SortIcon} from '../svg';
-import Checkbox from './Checkbox';
-import CheckboxGroup from './CheckboxGroup';
-
 import lodash from 'lodash';
+import moment from 'moment';
+import React, {useEffect, useState} from 'react';
+import {FilterTypes, MockType, useStore} from '../lib/store';
+import {ArrowDownIcon, CrossIcon, SearchIcon, SortIcon} from '../svg';
+import CheckboxGroup from './CheckboxGroup';
 import RadioGroup from './RadioGroup';
 import SwitchButton from './SwitchButton';
-import moment from 'moment';
 
 type CheckBoxState = {
   name: string;
@@ -47,7 +45,6 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
   const [provideOthPayOpt, setProvideOthPayOpt] = useState(
     searchParams.providesOtherPaymentsOptions,
   );
-
   const [avalibility1Part, setAvalibility1Part] = useState<Array<CheckBoxState> | null>([
     {name: 'Today', count: 0, checked: false},
     {name: 'Next 3 days', count: 0, checked: false},
@@ -102,10 +99,6 @@ const Dropdown: React.FC<DropdownProps> = ({type, regen, ...rest}) => {
       }
     }
   };
-
-  // useEffect(() => {
-  //   console.log('searchParams', searchParams);
-  // });
 
   const getMockNameCount = lodash.memoize((type: FilterTypes) => {
     if (doctors) {

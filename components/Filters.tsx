@@ -1,5 +1,4 @@
-import React, {useRef, useState} from 'react';
-import {ArrowDownIcon, TelehealthIcon} from '../svg';
+import React, {useState} from 'react';
 import ClearFilters from './ClearFilters';
 import Dropdown from './Dropdown';
 
